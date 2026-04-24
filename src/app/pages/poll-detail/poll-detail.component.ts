@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../../core/models/poll.model';
-import { CommonModule } from '@angular/common';
-
 
 @Component({
   selector: 'app-poll-detail',
@@ -12,12 +11,13 @@ import { CommonModule } from '@angular/common';
   templateUrl: './poll-detail.component.html',
   styleUrl: './poll-detail.component.scss'
 })
-export class PollDetailComponent implements OnInit {
+export class PollDetailComponent implements OnInit, OnDestroy {
   poll: Poll | null = null;
   loading = true;
   error = '';
   selectedOptionId: string | null = null;
   voting = false;
+  private voteSubscription: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +35,13 @@ export class PollDetailComponent implements OnInit {
 
     await this.loadPoll(pollId);
     await this.loadUserVote(pollId);
+    this.subscribeToLiveVotes(pollId);
+  }
+
+  ngOnDestroy(): void {
+    if (this.voteSubscription) {
+      this.voteSubscription.unsubscribe();
+    }
   }
 
   async loadPoll(pollId: string): Promise<void> {
@@ -52,6 +59,15 @@ export class PollDetailComponent implements OnInit {
     this.selectedOptionId = await this.pollService.getUserVote(pollId, voterId);
   }
 
+  subscribeToLiveVotes(pollId: string): void {
+    this.voteSubscription = this.pollService.subscribeToPollUpdates(
+      pollId,
+      async () => {
+        await this.loadPoll(pollId);
+      }
+    );
+  }
+
   getVoterIdentifier(): string {
     let id = localStorage.getItem('voter_id');
 
@@ -64,21 +80,28 @@ export class PollDetailComponent implements OnInit {
   }
 
   get totalVotes(): number {
-    if (!this.poll) return 0;
+    if (!this.poll) {
+      return 0;
+    }
 
     return this.poll.options.reduce(
-      (sum, option) => sum + option.voteCount,
+      (sum, option) => sum + option.vote_count,
       0
     );
   }
 
   getPercentage(votes: number): number {
-    if (this.totalVotes === 0) return 0;
+    if (this.totalVotes === 0) {
+      return 0;
+    }
+
     return (votes / this.totalVotes) * 100;
   }
 
   async vote(optionId: string): Promise<void> {
-    if (!this.poll || this.selectedOptionId) return;
+    if (!this.poll || this.selectedOptionId) {
+      return;
+    }
 
     try {
       this.voting = true;
@@ -97,35 +120,36 @@ export class PollDetailComponent implements OnInit {
       this.voting = false;
     }
   }
+
   getOptionLetter(index: number): string {
-  return String.fromCharCode(65 + index);
-}
-
-isPollPast(): boolean {
-  if (!this.poll) {
-    return false;
+    return String.fromCharCode(65 + index);
   }
 
-  return new Date(this.poll.deadline) <= new Date();
-}
+  isPollPast(): boolean {
+    if (!this.poll) {
+      return false;
+    }
 
-getDeadlineText(): string {
-  if (!this.poll?.deadline) {
-    return 'No deadline';
+    return new Date(this.poll.deadline) <= new Date();
   }
 
-  const date = new Date(this.poll.deadline);
+  getDeadlineText(): string {
+    if (!this.poll?.deadline) {
+      return 'No deadline';
+    }
 
-  if (isNaN(date.getTime())) {
-    return 'No deadline';
+    const date = new Date(this.poll.deadline);
+
+    if (isNaN(date.getTime())) {
+      return 'No deadline';
+    }
+
+    return date.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
-
-  return date.toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
 }

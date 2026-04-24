@@ -69,7 +69,13 @@ export class PollService {
   return data as Poll;
 }
 
-async vote(pollId: string, optionId: string, voterIdentifier: string): Promise<void> {
+async vote(
+  pollId: string,
+  optionId: string,
+  voterIdentifier: string
+): Promise<void> {
+  console.log('Vote start:', { pollId, optionId, voterIdentifier });
+
   const { error: voteError } = await this.supabase
     .from('votes')
     .insert({
@@ -79,8 +85,11 @@ async vote(pollId: string, optionId: string, voterIdentifier: string): Promise<v
     });
 
   if (voteError) {
+    console.error('Vote insert error:', voteError);
     throw voteError;
   }
+
+  console.log('Vote inserted');
 
   const { error: incrementError } = await this.supabase
     .rpc('increment_vote_count', {
@@ -88,8 +97,11 @@ async vote(pollId: string, optionId: string, voterIdentifier: string): Promise<v
     });
 
   if (incrementError) {
+    console.error('Increment error:', incrementError);
     throw incrementError;
   }
+
+  console.log('Vote count incremented');
 }
 
 async getUserVote(pollId: string, voterIdentifier: string): Promise<string | null> {
@@ -106,4 +118,20 @@ async getUserVote(pollId: string, voterIdentifier: string): Promise<string | nul
 
   return data.option_id;
 }
-}
+subscribeToPollUpdates(pollId: string, callback: () => void) {
+  return this.supabase
+    .channel(`poll-${pollId}-updates`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'options',
+        filter: `poll_id=eq.${pollId}`
+      },
+      () => callback()
+    )
+    .subscribe((status) => {
+      console.log('Realtime status:', status);
+    });
+} }

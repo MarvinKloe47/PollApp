@@ -14,7 +14,7 @@ export class PollCardComponent {
 
   get totalVotes(): number {
     return this.poll.options.reduce(
-      (sum, option) => sum + option.voteCount,
+      (sum, option) => sum + option.vote_count,
       0
     );
   }

@@ -129,19 +129,19 @@
                   <div
                     class="pd-bar-track"
                     role="progressbar"
-                    [attr.aria-valuenow]="getPercentage(option.voteCount)"
+                    [attr.aria-valuenow]="getPercentage(option.vote_count)"
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    [attr.aria-label]="option.text + ': ' + getPercentage(option.voteCount) + '%'"
+                    [attr.aria-label]="option.text + ': ' + getPercentage(option.vote_count) + '%'"
                   >
                     <div
                       class="pd-bar-fill"
-                      [style.width.%]="getPercentage(option.voteCount)"
+                      [style.width.%]="getPercentage(option.vote_count)"
                     ></div>
                   </div>
 
                   <span class="pd-bar-row__pct">
-                    {{ getPercentage(option.voteCount) | number:'1.0-0' }}%
+                    {{ getPercentage(option.vote_count) | number:'1.0-0' }}%
                   </span>
                 </li>
               }

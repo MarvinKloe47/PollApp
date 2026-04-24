@@ -2,7 +2,7 @@ export interface PollOption {
   id: string;
   pollId: string;
   text: string;
-  voteCount: number;
+  vote_count: number;
   createdAt?: string;
 }
 
