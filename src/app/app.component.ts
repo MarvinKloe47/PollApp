@@ -12,13 +12,6 @@ import { RouterOutlet, RouterModule } from '@angular/router';
           <img src="logo.svg" alt="Poll App" />
         </a>
 
-        <button
-          type="button"
-          class="app-header__create"
-          routerLink="/create"
-        >
-          Create survey
-        </button>
       </div>
     </header>
 

@@ -30,14 +30,14 @@ export class HomeComponent implements OnInit {
     'Technology & Innovation'
   ];
 
+  polls: Poll[] = [];
+  loading = true;
+  error = '';
+
   constructor(
     private readonly pollService: PollService,
     private readonly router: Router
   ) {}
-
-  polls: Poll[] = [];
-  loading = true;
-  error = '';
 
   async ngOnInit(): Promise<void> {
     await this.loadPolls();
@@ -84,6 +84,17 @@ export class HomeComponent implements OnInit {
     }
 
     return polls.filter((poll) => poll.category === category);
+  }
+
+  getEndsInText(deadline: string): string {
+    const diff = new Date(deadline).getTime() - Date.now();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    if (days <= 0) {
+      return 'Ending today';
+    }
+
+    return `Ends in ${days} ${days === 1 ? 'Day' : 'Days'}`;
   }
 
   toggleCategoryMenu(): void {

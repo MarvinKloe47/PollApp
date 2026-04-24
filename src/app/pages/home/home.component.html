@@ -2,12 +2,11 @@
   <section class="hero">
     <div class="hero__content">
       <h1 class="hero__heading">
-        Collect Feedback,<br />
-        Unlock Ideas
+        Collect Feedback,<br />Unlock Ideas
       </h1>
 
       <p class="hero__subtitle">
-        Create and share surveys in minutes – from team events to workplace culture.
+        Create and share surveys in minutes &ndash; from team events to workplace culture.
         Collect opinions, engage your audience, and turn feedback into action.
       </p>
 
@@ -32,6 +31,7 @@
           />
         }
       </button>
+
     </div>
 
     <div
@@ -74,13 +74,14 @@
           Ending soon surveys
         </h3>
 
-        <ul class="urgent-polls__list" role="list">
+        <ul class="urgent-polls__list" role="list" aria-label="Surveys ending soon">
           @for (poll of getUrgentPolls(); track poll.id) {
             <li class="urgent-polls__item">
               <article
                 class="urgent-card"
                 role="button"
                 tabindex="0"
+                [attr.aria-label]="'Ending soon: ' + poll.title"
                 (click)="navigateToPoll(poll)"
                 (keydown.enter)="navigateToPoll(poll)"
               >
@@ -96,7 +97,7 @@
 
                 <footer class="urgent-card__footer">
                   <span class="urgent-card__badge">
-                    Ends soon
+                    {{ getEndsInText(poll.deadline) }}
                   </span>
                 </footer>
               </article>
@@ -107,25 +108,27 @@
     }
 
     @if (loading) {
-      <div class="surveys__loading">
-        <span class="spinner"></span>
-        <p>Loading surveys...</p>
+      <div class="surveys__loading" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Loading surveys&hellip;</p>
       </div>
     }
 
     @if (error && !loading) {
-      <div class="surveys__error">
-        <p>⚠ {{ error }}</p>
+      <div class="surveys__error" role="alert">
+        <p>&#9888; {{ error }}</p>
       </div>
     }
 
     @if (!loading) {
       <div class="surveys__body">
         <div class="surveys__controls">
-          <nav class="surveys__tabs" role="tablist">
+          <nav class="surveys__tabs" role="tablist" aria-label="Survey categories">
             <button
               class="surveys__tab"
+              role="tab"
               [class.surveys__tab--active]="activeTab() === 'active'"
+              [attr.aria-selected]="activeTab() === 'active'"
               type="button"
               (click)="switchTab('active')"
             >
@@ -134,7 +137,9 @@
 
             <button
               class="surveys__tab"
+              role="tab"
               [class.surveys__tab--active]="activeTab() === 'past'"
+              [attr.aria-selected]="activeTab() === 'past'"
               type="button"
               (click)="switchTab('past')"
             >
@@ -151,7 +156,7 @@
               >
                 Sort by categories
                 <span class="sort-dropdown__arrow">
-                  {{ showCategoryMenu() ? '▲' : '▼' }}
+                  {{ showCategoryMenu() ? '&#9650;' : '&#9660;' }}
                 </span>
               </button>
 
@@ -208,7 +213,7 @@
         }
 
         @if (getDisplayedPolls().length > 0) {
-          <ul class="polls-grid" role="list">
+          <ul class="polls-grid" role="list" aria-label="Surveys">
             @for (poll of getDisplayedPolls(); track poll.id) {
               <li>
                 <app-poll-card [poll]="poll"></app-poll-card>
