@@ -6,39 +6,24 @@ import { RouterOutlet, RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet, RouterModule],
   template: `
-      <header class="app-nav">
-    <div class="app-nav__inner">
-      <a class="app-nav__logo" routerLink="/">
-        <img src="logo.svg" alt="Poll App" class="app-nav__logo-img">
-      </a>
+    <header class="app-header">
+      <div class="app-header__inner">
+        <a routerLink="/" class="app-header__logo">
+          <img src="logo.svg" alt="Poll App" />
+        </a>
 
-      <a class="app-nav__create-btn" routerLink="/create">
-        Create survey
-      </a>
-    </div>
-  </header>
+        <button
+          type="button"
+          class="app-header__create"
+          routerLink="/create"
+        >
+          Create survey
+        </button>
+      </div>
+    </header>
 
-  <router-outlet></router-outlet>
-
-
-    <main>
-      <router-outlet></router-outlet>
-    </main>
+    <router-outlet></router-outlet>
   `,
-  styles: [`
-    header {
-      padding: 16px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    nav {
-      display: flex;
-      gap: 16px;
-    }
-
-    main {
-      padding: 20px;
-    }
-  `]
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {}

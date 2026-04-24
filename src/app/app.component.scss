@@ -1,39 +1,60 @@
-.app-nav {
-  padding: 1.25rem 0;
+.app-header {
+  width: 100%;
+  padding: 1.5rem 0 0;
 }
 
-.app-nav__inner {
+.app-header__inner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 }
 
-.app-nav__logo {
+.app-header__logo {
   display: inline-flex;
   align-items: center;
 }
 
-.app-nav__logo-img {
-  height: 42px;
-  width: auto;
+.app-header__logo img {
+  width: 124px;
+  height: auto;
   display: block;
 }
 
-.app-nav__create-btn {
-  background: var(--color-primary);
+.app-header__create {
+  background: #ffb770;
   border: none;
   border-radius: 10px;
   color: #ffffff;
   cursor: pointer;
-  font-family: Mulish, sans-serif;
-  font-size: 0.9rem;
+  font-family: 'Mulish', sans-serif;
+  font-size: 14px;
   font-weight: 700;
-  padding: 0.55rem 1.5rem;
+  padding: 0.55rem 1.45rem;
+  transition: background 0.15s ease;
 }
 
-.app-nav__create-btn:hover {
+.app-header__create:hover {
   background: #8a3fa0;
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding-top: 1rem;
+  }
+
+  .app-header__inner {
+    padding: 0 1.25rem;
+  }
+
+  .app-header__logo img {
+    width: 108px;
+  }
+
+  .app-header__create {
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+  }
 }
