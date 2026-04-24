@@ -1,2 +1,30 @@
-<h1>Poll Detail</h1>
-<p>Hier wird später abgestimmt</p>
+<h1>{{ poll?.title }}</h1>
+<p>{{ poll?.description }}</p>
+
+@if (loading) {
+  <p>Lade...</p>
+}
+
+@if (poll) {
+  <p>Gesamt Stimmen: {{ totalVotes }}</p>
+
+  @for (option of poll.options; track option.id) {
+    <div>
+      <button
+        (click)="vote(option.id)"
+        [disabled]="selectedOptionId || voting"
+      >
+        {{ option.text }}
+      </button>
+
+      <div style="height: 10px; background: #eee;">
+        <div
+          style="height: 10px; background: blue;"
+          [style.width.%]="getPercentage(option.vote_count)"
+        ></div>
+      </div>
+
+      <p>{{ option.vote_count }} Stimmen</p>
+    </div>
+  }
+}

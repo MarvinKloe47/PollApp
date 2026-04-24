@@ -1,2 +1,74 @@
-<h1>Create Poll</h1>
-<p>Hier wird später eine Umfrage erstellt</p>
+<section class="create-page">
+  <div class="create-card">
+    <h1>Neue Umfrage erstellen</h1>
+    <p>Erstelle eine Frage mit mehreren Antwortoptionen.</p>
+
+    <label for="title">Titel</label>
+    <input
+      id="title"
+      type="text"
+      [(ngModel)]="title"
+      placeholder="z. B. Was essen wir heute?"
+    />
+
+    <label for="description">Beschreibung</label>
+    <textarea
+      id="description"
+      [(ngModel)]="description"
+      placeholder="Kurze Beschreibung der Umfrage"
+    ></textarea>
+
+    <label for="category">Kategorie</label>
+    <input
+      id="category"
+      type="text"
+      [(ngModel)]="category"
+      placeholder="z. B. Food, Team, Freizeit"
+    />
+
+    <label for="deadline">Deadline</label>
+    <input
+      id="deadline"
+      type="datetime-local"
+      [(ngModel)]="deadline"
+    />
+
+    <h2>Antwortoptionen</h2>
+
+    @for (option of options; track $index) {
+      <div class="option-row">
+        <input
+          type="text"
+          [(ngModel)]="options[$index]"
+          placeholder="Antwortoption"
+        />
+
+        <button
+          type="button"
+          class="remove-btn"
+          (click)="removeOption($index)"
+          [disabled]="options.length <= 2"
+        >
+          Entfernen
+        </button>
+      </div>
+    }
+
+    <button type="button" class="secondary-btn" (click)="addOption()">
+      Option hinzufügen
+    </button>
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+
+    <button
+      type="button"
+      class="submit-btn"
+      (click)="submit()"
+      [disabled]="loading"
+    >
+      {{ loading ? 'Speichern...' : 'Umfrage erstellen' }}
+    </button>
+  </div>
+</section>
