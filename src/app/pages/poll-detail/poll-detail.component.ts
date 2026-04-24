@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../../core/models/poll.model';
 import { CommonModule } from '@angular/common';
 
+
 @Component({
   selector: 'app-poll-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './poll-detail.component.html',
   styleUrl: './poll-detail.component.scss'
 })
@@ -96,4 +97,35 @@ export class PollDetailComponent implements OnInit {
       this.voting = false;
     }
   }
+  getOptionLetter(index: number): string {
+  return String.fromCharCode(65 + index);
+}
+
+isPollPast(): boolean {
+  if (!this.poll) {
+    return false;
+  }
+
+  return new Date(this.poll.deadline) <= new Date();
+}
+
+getDeadlineText(): string {
+  if (!this.poll?.deadline) {
+    return 'No deadline';
+  }
+
+  const date = new Date(this.poll.deadline);
+
+  if (isNaN(date.getTime())) {
+    return 'No deadline';
+  }
+
+  return date.toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
 }

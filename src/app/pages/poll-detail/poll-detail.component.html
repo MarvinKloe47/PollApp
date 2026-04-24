@@ -1,60 +1,154 @@
-<section class="detail-page">
+<main class="pd-page">
   @if (loading) {
-    <p class="detail-state">Loading survey...</p>
+    <div class="pd-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Loading survey...</p>
+    </div>
   }
 
-  @if (error) {
-    <p class="detail-state detail-state--error">{{ error }}</p>
+  @if (!poll && !loading) {
+    <div class="pd-state">
+      <h2>Survey not found</h2>
+      <p>This survey may have been removed.</p>
+    </div>
+  }
+
+  @if (error && !loading) {
+    <div class="pd-state">
+      <p>{{ error }}</p>
+    </div>
   }
 
   @if (poll && !loading) {
-    <article class="detail-card">
-      <header class="detail-header">
-        <div>
-          <p class="detail-category">{{ poll.category }}</p>
-          <h1>{{ poll.title }}</h1>
+    <div class="pd-card">
+      <section class="pd-survey">
+        <span class="pd-badge">Published</span>
+
+        <div class="pd-meta">
+          <span class="pd-meta__item">
+            Ends on {{ getDeadlineText() }}
+          </span>
+
+          <span class="pd-meta__item">
+            Category: {{ poll.category }}
+          </span>
         </div>
 
-        <span class="detail-votes">{{ totalVotes }} votes</span>
-      </header>
+        <h1 class="pd-title">{{ poll.title }}</h1>
 
-      @if (poll.description) {
-        <p class="detail-description">{{ poll.description }}</p>
-      }
-
-      <div class="detail-options">
-        @for (option of poll.options; track option.id) {
-          <button
-            type="button"
-            class="answer-card"
-            [class.answer-card--selected]="selectedOptionId === option.id"
-            (click)="vote(option.id)"
-            [disabled]="!!selectedOptionId || voting"
-          >
-            <div class="answer-card__top">
-              <span class="answer-card__text">{{ option.text }}</span>
-              <span class="answer-card__percent">
-                {{ getPercentage(option.voteCount) | number:'1.0-0' }}%
-              </span>
-            </div>
-
-            <div class="answer-card__bar">
-              <div
-                class="answer-card__fill"
-                [style.width.%]="getPercentage(option.voteCount)"
-              ></div>
-            </div>
-
-            <div class="answer-card__bottom">
-              {{ option.voteCount }} votes
-            </div>
-          </button>
+        @if (poll.description) {
+          <p class="pd-description">{{ poll.description }}</p>
         }
-      </div>
 
-      @if (selectedOptionId) {
-        <p class="detail-note">Thank you for voting!</p>
-      }
-    </article>
+        <div class="pd-question">
+          <header class="pd-question__header">
+            <h2 class="pd-question__title">
+              1. {{ poll.title }}
+            </h2>
+
+            <p class="pd-question__hint">
+              More than one answers are possible.
+            </p>
+          </header>
+
+          <ul class="pd-options" role="list">
+            @for (option of poll.options; track option.id; let i = $index) {
+              <li>
+                <button
+                  class="pd-option"
+                  type="button"
+                  [class.pd-option--selected]="selectedOptionId === option.id"
+                  [class.pd-option--voted]="!!selectedOptionId"
+                  [disabled]="!!selectedOptionId || voting || isPollPast()"
+                  [attr.aria-pressed]="selectedOptionId === option.id"
+                  [attr.aria-label]="'Vote for: ' + option.text"
+                  (click)="vote(option.id)"
+                >
+                  <span
+                    class="pd-option__checkbox"
+                    [class.pd-option__checkbox--checked]="selectedOptionId === option.id"
+                    aria-hidden="true"
+                  ></span>
+
+                  <span class="pd-option__text">
+                    <strong>{{ getOptionLetter(i) }}.</strong>&nbsp;{{ option.text }}
+                  </span>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <footer class="pd-survey__footer">
+          @if (selectedOptionId) {
+            <p class="pd-voted-hint">Your vote was counted &#10003;</p>
+          }
+
+          @if (isPollPast() && !selectedOptionId) {
+            <p class="pd-voted-hint">This survey has ended.</p>
+          }
+
+          @if (voting) {
+            <p class="pd-voting-note">Submitting your vote...</p>
+          }
+
+          <button class="pd-submit" type="button" routerLink="/">
+            Complete survey
+          </button>
+        </footer>
+      </section>
+
+      <aside class="pd-results" aria-live="polite" aria-atomic="false">
+        <h2 class="pd-results__heading">
+          Survey results <span class="pd-results__live">LIVE</span>
+        </h2>
+
+        @if (totalVotes === 0) {
+          <p class="pd-results__lead">
+            Results will be shown here after participants complete the survey.
+          </p>
+
+          <p class="pd-results__empty">
+            There are no answers yet.
+          </p>
+        }
+
+        @if (totalVotes > 0) {
+          <div class="pd-result-group">
+            <h3 class="pd-result-group__title">
+              1. {{ poll.title }}
+            </h3>
+
+            <ul class="pd-bars" role="list">
+              @for (option of poll.options; track option.id; let i = $index) {
+                <li class="pd-bar-row">
+                  <span class="pd-bar-row__letter">
+                    {{ getOptionLetter(i) }}
+                  </span>
+
+                  <div
+                    class="pd-bar-track"
+                    role="progressbar"
+                    [attr.aria-valuenow]="getPercentage(option.voteCount)"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    [attr.aria-label]="option.text + ': ' + getPercentage(option.voteCount) + '%'"
+                  >
+                    <div
+                      class="pd-bar-fill"
+                      [style.width.%]="getPercentage(option.voteCount)"
+                    ></div>
+                  </div>
+
+                  <span class="pd-bar-row__pct">
+                    {{ getPercentage(option.voteCount) | number:'1.0-0' }}%
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </aside>
+    </div>
   }
-</section>
+</main>
