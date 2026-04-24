@@ -1,2 +1,42 @@
-<h1>Home</h1>
-<p>Hier werden später die Umfragen angezeigt</p>
+<section class="home">
+  <div class="home__header">
+    <div>
+      <h1>PollApp</h1>
+      <p>Erstelle Umfragen und stimme live ab.</p>
+    </div>
+
+    <a routerLink="/create" class="home__create-link">
+      Neue Umfrage
+    </a>
+  </div>
+
+  @if (loading) {
+    <p>Lade Umfragen...</p>
+  }
+
+  @if (error) {
+    <p>{{ error }}</p>
+  }
+
+  @if (!loading) {
+    <section>
+      <h2>Aktive Umfragen</h2>
+
+      <div class="poll-grid">
+        @for (poll of activePolls; track poll.id) {
+          <app-poll-card [poll]="poll"></app-poll-card>
+        }
+      </div>
+    </section>
+
+    <section>
+      <h2>Vergangene Umfragen</h2>
+
+      <div class="poll-grid">
+        @for (poll of pastPolls; track poll.id) {
+          <app-poll-card [poll]="poll"></app-poll-card>
+        }
+      </div>
+    </section>
+  }
+</section>
