@@ -331,7 +331,7 @@
   border-radius: 0 80px 0 0;
   padding: 1.25rem 1.25rem 1rem;
   width: 240px;
-  min-height: 210px;
+  height: 210px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -362,6 +362,10 @@
   margin: 0;
   line-height: 1.4;
   flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .urgent-card__footer {
