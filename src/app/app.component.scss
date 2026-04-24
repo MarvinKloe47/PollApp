@@ -1,29 +1,29 @@
-.app-header {
+.app-nav {
   width: 100%;
   padding: 1.5rem 0 0;
 }
 
-.app-header__inner {
+.app-nav__inner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
-.app-header__logo {
+.app-nav__logo {
   display: inline-flex;
   align-items: center;
 }
 
-.app-header__logo img {
-  width: 124px;
+.app-nav__logo-img {
+  width: 119px;
   height: auto;
   display: block;
 }
 
-.app-header__create {
+.app-nav__create-btn {
   background: #ffb770;
   border: none;
   border-radius: 10px;
@@ -33,28 +33,33 @@
   font-size: 14px;
   font-weight: 700;
   padding: 0.55rem 1.45rem;
-  transition: background 0.15s ease;
 }
 
-.app-header__create:hover {
+.app-nav__create-btn:hover {
   background: #8a3fa0;
 }
 
-@media (max-width: 640px) {
-  .app-header {
-    padding-top: 1rem;
-  }
+.app-nav--light {
+  background: #ffffff;
+  padding: 34px 0 0;
+}
 
-  .app-header__inner {
-    padding: 0 1.25rem;
-  }
+.app-nav--light .app-nav__inner {
+  padding: 0 60px;
+}
 
-  .app-header__logo img {
-    width: 108px;
-  }
+.app-nav--light .app-nav__logo-img {
+  width: 92px;
+}
 
-  .app-header__create {
-    padding: 0.5rem 1rem;
-    font-size: 13px;
-  }
+.app-nav--light .app-nav__create-btn {
+  background: #ffcfa1;
+  color: #35273a;
+  border-radius: 8px;
+  font-size: 13px;
+  padding: 9px 17px;
+}
+
+.app-nav--light .app-nav__create-btn:hover {
+  background: #ffb770;
 }
