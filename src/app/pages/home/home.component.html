@@ -1,41 +1,222 @@
-<section class="home">
+<div class="home-wrapper">
   <section class="hero">
     <div class="hero__content">
-      <h1>Empower your decisions</h1>
+      <h1 class="hero__heading">
+        Collect Feedback,<br />
+        Unlock Ideas
+      </h1>
 
-      <p>
-        Create surveys, collect votes and make decisions faster with your team.
+      <p class="hero__subtitle">
+        Create and share surveys in minutes – from team events to workplace culture.
+        Collect opinions, engage your audience, and turn feedback into action.
       </p>
 
-      <a routerLink="/create" class="hero__button">
-        Create survey
-      </a>
+      <button
+        class="hero__cta"
+        [class.hero__cta--hovered]="isCtaHovered()"
+        type="button"
+        (mouseenter)="isCtaHovered.set(true)"
+        (mouseleave)="isCtaHovered.set(false)"
+        (click)="openCreateModal()"
+      >
+        New survey
+
+        @if (isCtaHovered()) {
+          <img
+            class="hero__cta-icon"
+            src="add_circle_dark.svg"
+            alt=""
+            aria-hidden="true"
+            width="20"
+            height="20"
+          />
+        }
+      </button>
     </div>
 
-    <div class="hero__visual">
-      <img src="tablet.png" alt="Survey preview" />
+    <div
+      class="hero__illustration"
+      aria-hidden="true"
+      (mouseenter)="isIllustrationHovered.set(true)"
+      (mouseleave)="isIllustrationHovered.set(false)"
+    >
+      <img
+        class="hero__phone"
+        [src]="isIllustrationHovered() ? 'tablet-hover.png' : 'tablet.png'"
+        alt=""
+        loading="eager"
+      />
+
+      <img
+        class="hero__asset hero__asset--bubble"
+        [src]="isIllustrationHovered() ? 'asset-bubble-hover.svg' : 'asset-bubble.svg'"
+        alt=""
+        loading="eager"
+      />
+
+      <img
+        class="hero__asset hero__asset--check"
+        [src]="isIllustrationHovered() ? 'asset-check-hover.svg' : 'asset-check.svg'"
+        alt=""
+        loading="eager"
+      />
     </div>
   </section>
 
-  <section class="surveys">
-    <div class="surveys__header">
-      <h2>Your surveys</h2>
-    </div>
+  <section class="surveys" aria-labelledby="surveys-heading">
+    <h2 id="surveys-heading" class="surveys__heading">
+      Your surveys
+    </h2>
 
-    @if (loading) {
-      <p class="surveys__state">Loading surveys...</p>
+    @if (getUrgentPolls().length > 0) {
+      <section class="urgent-polls" aria-labelledby="urgent-heading">
+        <h3 id="urgent-heading" class="urgent-polls__title">
+          Ending soon surveys
+        </h3>
+
+        <ul class="urgent-polls__list" role="list">
+          @for (poll of getUrgentPolls(); track poll.id) {
+            <li class="urgent-polls__item">
+              <article
+                class="urgent-card"
+                role="button"
+                tabindex="0"
+                (click)="navigateToPoll(poll)"
+                (keydown.enter)="navigateToPoll(poll)"
+              >
+                @if (poll.description) {
+                  <p class="urgent-card__category">
+                    {{ poll.description }}
+                  </p>
+                }
+
+                <h4 class="urgent-card__title">
+                  {{ poll.title }}
+                </h4>
+
+                <footer class="urgent-card__footer">
+                  <span class="urgent-card__badge">
+                    Ends soon
+                  </span>
+                </footer>
+              </article>
+            </li>
+          }
+        </ul>
+      </section>
     }
 
-    @if (error) {
-      <p class="surveys__state surveys__state--error">{{ error }}</p>
+    @if (loading) {
+      <div class="surveys__loading">
+        <span class="spinner"></span>
+        <p>Loading surveys...</p>
+      </div>
+    }
+
+    @if (error && !loading) {
+      <div class="surveys__error">
+        <p>⚠ {{ error }}</p>
+      </div>
     }
 
     @if (!loading) {
-      <div class="poll-grid">
-        @for (poll of activePolls; track poll.id) {
-          <app-poll-card [poll]="poll"></app-poll-card>
+      <div class="surveys__body">
+        <div class="surveys__controls">
+          <nav class="surveys__tabs" role="tablist">
+            <button
+              class="surveys__tab"
+              [class.surveys__tab--active]="activeTab() === 'active'"
+              type="button"
+              (click)="switchTab('active')"
+            >
+              Active survey
+            </button>
+
+            <button
+              class="surveys__tab"
+              [class.surveys__tab--active]="activeTab() === 'past'"
+              type="button"
+              (click)="switchTab('past')"
+            >
+              Past survey
+            </button>
+          </nav>
+
+          <div class="surveys__sort">
+            <div class="sort-dropdown">
+              <button
+                class="sort-dropdown__btn"
+                type="button"
+                (click)="toggleCategoryMenu()"
+              >
+                Sort by categories
+                <span class="sort-dropdown__arrow">
+                  {{ showCategoryMenu() ? '▲' : '▼' }}
+                </span>
+              </button>
+
+              @if (selectedCategory()) {
+                <span class="sort-dropdown__selected">
+                  {{ selectedCategory() }}
+                </span>
+              }
+
+              @if (showCategoryMenu()) {
+                <ul class="sort-dropdown__list">
+                  <li>
+                    <button
+                      class="sort-dropdown__item"
+                      type="button"
+                      (click)="selectCategory(null)"
+                    >
+                      All categories
+                    </button>
+                  </li>
+
+                  @for (category of categories; track category) {
+                    <li>
+                      <button
+                        class="sort-dropdown__item"
+                        [class.sort-dropdown__item--active]="selectedCategory() === category"
+                        type="button"
+                        (click)="selectCategory(category)"
+                      >
+                        {{ category }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (getDisplayedPolls().length === 0) {
+          <div class="surveys__empty">
+            @if (activeTab() === 'active') {
+              <p class="surveys__empty-text">
+                No active surveys yet. Create your first one!
+              </p>
+            }
+
+            @if (activeTab() === 'past') {
+              <p class="surveys__empty-text">
+                No past surveys found.
+              </p>
+            }
+          </div>
+        }
+
+        @if (getDisplayedPolls().length > 0) {
+          <ul class="polls-grid" role="list">
+            @for (poll of getDisplayedPolls(); track poll.id) {
+              <li>
+                <app-poll-card [poll]="poll"></app-poll-card>
+              </li>
+            }
+          </ul>
         }
       </div>
     }
   </section>
-</section>
+</div>
