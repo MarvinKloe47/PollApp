@@ -6,12 +6,20 @@ import { RouterOutlet, RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet, RouterModule],
   template: `
-    <header>
-      <nav>
-        <a routerLink="/">Home</a>
-        <a routerLink="/create">Create Poll</a>
-      </nav>
-    </header>
+      <header class="app-nav">
+    <div class="app-nav__inner">
+      <a class="app-nav__logo" routerLink="/">
+        <img src="logo.svg" alt="Poll App" class="app-nav__logo-img">
+      </a>
+
+      <a class="app-nav__create-btn" routerLink="/create">
+        Create survey
+      </a>
+    </div>
+  </header>
+
+  <router-outlet></router-outlet>
+
 
     <main>
       <router-outlet></router-outlet>

@@ -1,1 +1,89 @@
-/* You can add global styles to this file, and also import other style files */
+@font-face {
+  font-family: 'Nerko One';
+  src: url('/fonts/nerko-one-v17-latin/nerko-one-v17-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/mulish-v18-latin/mulish-v18-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/mulish-v18-latin/mulish-v18-latin-700.woff2') format('woff2');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Nokora';
+  src: url('/fonts/nokora-v34-latin/nokora-v34-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+}
+
+:root {
+  --color-bg: #35273A;
+  --color-surface: #221227;
+  --color-surface-elevated: #2E1A34;
+  --color-surface-light: #FAF5FE;
+
+  --color-border: #4A2E52;
+  --color-border-hover: #6A4472;
+
+  --color-primary: #FFB770;
+  --color-primary-hover: #F59E0B;
+  --color-primary-light: #FFCFA1;
+  --color-primary-glow: rgba(255, 183, 112, 0.30);
+
+  --color-tab-active: #FFB770;
+  --color-tab-inactive: #FEE9D4;
+  --color-tab-text-active: #290657;
+  --color-tab-text-inactive: #6B4A7A;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #D4C4DC;
+  --color-text-muted: #9B7AAB;
+  --color-text-dark: #290657;
+
+  --color-warning: #FFB770;
+  --color-error: #EF4444;
+  --color-success: #22C55E;
+
+  --color-card: rgba(217, 217, 217, 0.08);
+  --color-card-hover: rgba(217, 217, 217, 0.14);
+  --color-card-light: #FAF5FE;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: 'Mulish', system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

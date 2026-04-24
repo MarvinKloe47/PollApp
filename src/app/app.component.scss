@@ -1,0 +1,39 @@
+.app-nav {
+  padding: 1.25rem 0;
+}
+
+.app-nav__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-nav__logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-nav__logo-img {
+  height: 42px;
+  width: auto;
+  display: block;
+}
+
+.app-nav__create-btn {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: Mulish, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.55rem 1.5rem;
+}
+
+.app-nav__create-btn:hover {
+  background: #8a3fa0;
+}
