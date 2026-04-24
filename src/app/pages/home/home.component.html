@@ -1,42 +1,41 @@
 <section class="home">
-  <div class="home__header">
-    <div>
-      <h1>PollApp</h1>
-      <p>Erstelle Umfragen und stimme live ab.</p>
+  <section class="hero">
+    <div class="hero__content">
+      <h1>Empower your decisions</h1>
+
+      <p>
+        Create surveys, collect votes and make decisions faster with your team.
+      </p>
+
+      <a routerLink="/create" class="hero__button">
+        Create survey
+      </a>
     </div>
 
-    <a routerLink="/create" class="home__create-link">
-      Neue Umfrage
-    </a>
-  </div>
+    <div class="hero__visual">
+      <img src="tablet.png" alt="Survey preview" />
+    </div>
+  </section>
 
-  @if (loading) {
-    <p>Lade Umfragen...</p>
-  }
+  <section class="surveys">
+    <div class="surveys__header">
+      <h2>Your surveys</h2>
+    </div>
 
-  @if (error) {
-    <p>{{ error }}</p>
-  }
+    @if (loading) {
+      <p class="surveys__state">Loading surveys...</p>
+    }
 
-  @if (!loading) {
-    <section>
-      <h2>Aktive Umfragen</h2>
+    @if (error) {
+      <p class="surveys__state surveys__state--error">{{ error }}</p>
+    }
 
+    @if (!loading) {
       <div class="poll-grid">
         @for (poll of activePolls; track poll.id) {
           <app-poll-card [poll]="poll"></app-poll-card>
         }
       </div>
-    </section>
-
-    <section>
-      <h2>Vergangene Umfragen</h2>
-
-      <div class="poll-grid">
-        @for (poll of pastPolls; track poll.id) {
-          <app-poll-card [poll]="poll"></app-poll-card>
-        }
-      </div>
-    </section>
-  }
+    }
+  </section>
 </section>
