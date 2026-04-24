@@ -85,9 +85,9 @@
                 (click)="navigateToPoll(poll)"
                 (keydown.enter)="navigateToPoll(poll)"
               >
-                @if (poll.description) {
+                @if (poll.category) {
                   <p class="urgent-card__category">
-                    {{ poll.description }}
+                    {{ poll.category }}
                   </p>
                 }
 
