@@ -1,30 +1,49 @@
-<h1>{{ poll?.title }}</h1>
-<p>{{ poll?.description }}</p>
+<section class="poll-detail">
+  @if (loading) {
+    <p class="poll-detail__state">Loading survey...</p>
+  }
 
-@if (loading) {
-  <p>Lade...</p>
-}
+  @if (error) {
+    <p class="poll-detail__state poll-detail__state--error">{{ error }}</p>
+  }
 
-@if (poll) {
-  <p>Gesamt Stimmen: {{ totalVotes }}</p>
-
-  @for (option of poll.options; track option.id) {
-    <div>
-      <button
-        (click)="vote(option.id)"
-        [disabled]="selectedOptionId || voting"
-      >
-        {{ option.text }}
-      </button>
-
-      <div style="height: 10px; background: #eee;">
-        <div
-          style="height: 10px; background: blue;"
-          [style.width.%]="getPercentage(option.voteCount)"
-        ></div>
+  @if (poll && !loading) {
+    <article class="poll-detail__card">
+      <div class="poll-detail__meta">
+        <span>{{ poll.category }}</span>
+        <span>{{ totalVotes }} votes</span>
       </div>
 
-      <p>{{ option.voteCount }} Stimmen</p>
-    </div>
+      <h1>{{ poll.title }}</h1>
+      <p class="poll-detail__description">{{ poll.description }}</p>
+
+      <div class="poll-detail__options">
+        @for (option of poll.options; track option.id) {
+          <button
+            type="button"
+            class="option-card"
+            [class.option-card--selected]="selectedOptionId === option.id"
+            (click)="vote(option.id)"
+            [disabled]="!!selectedOptionId || voting"
+          >
+            <div class="option-card__top">
+              <span>{{ option.text }}</span>
+              <span>{{ getPercentage(option.voteCount) | number:'1.0-0' }}%</span>
+            </div>
+
+            <div class="option-card__bar">
+              <div
+                class="option-card__fill"
+                [style.width.%]="getPercentage(option.voteCount)"
+              ></div>
+            </div>
+
+            <div class="option-card__votes">
+              {{ option.voteCount }} votes
+            </div>
+          </button>
+        }
+      </div>
+    </article>
   }
-}
+</section>

@@ -1,0 +1,120 @@
+.poll-detail {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.poll-detail__card {
+  padding: 2rem;
+  border-radius: 32px;
+  background: var(--color-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18);
+}
+
+.poll-detail__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.poll-detail h1 {
+  font-family: 'Nerko One', cursive;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 0.9;
+  font-weight: 400;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.poll-detail__description {
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+}
+
+.poll-detail__options {
+  display: grid;
+  gap: 1rem;
+}
+
+.option-card {
+  width: 100%;
+  padding: 1.15rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.option-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(255, 183, 112, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.option-card:disabled {
+  cursor: default;
+}
+
+.option-card--selected {
+  border-color: var(--color-primary);
+  background: rgba(255, 183, 112, 0.14);
+}
+
+.option-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-weight: 700;
+}
+
+.option-card__bar {
+  height: 10px;
+  margin-top: 0.9rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.option-card__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.option-card__votes {
+  margin-top: 0.55rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.poll-detail__state {
+  color: var(--color-text-secondary);
+}
+
+.poll-detail__state--error {
+  color: var(--color-error);
+}
+
+@media (max-width: 640px) {
+  .poll-detail {
+    padding: 1rem;
+  }
+
+  .poll-detail__card {
+    padding: 1.25rem;
+    border-radius: 24px;
+  }
+}
