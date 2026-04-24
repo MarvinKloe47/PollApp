@@ -1,49 +1,60 @@
-<section class="poll-detail">
+<section class="detail-page">
   @if (loading) {
-    <p class="poll-detail__state">Loading survey...</p>
+    <p class="detail-state">Loading survey...</p>
   }
 
   @if (error) {
-    <p class="poll-detail__state poll-detail__state--error">{{ error }}</p>
+    <p class="detail-state detail-state--error">{{ error }}</p>
   }
 
   @if (poll && !loading) {
-    <article class="poll-detail__card">
-      <div class="poll-detail__meta">
-        <span>{{ poll.category }}</span>
-        <span>{{ totalVotes }} votes</span>
-      </div>
+    <article class="detail-card">
+      <header class="detail-header">
+        <div>
+          <p class="detail-category">{{ poll.category }}</p>
+          <h1>{{ poll.title }}</h1>
+        </div>
 
-      <h1>{{ poll.title }}</h1>
-      <p class="poll-detail__description">{{ poll.description }}</p>
+        <span class="detail-votes">{{ totalVotes }} votes</span>
+      </header>
 
-      <div class="poll-detail__options">
+      @if (poll.description) {
+        <p class="detail-description">{{ poll.description }}</p>
+      }
+
+      <div class="detail-options">
         @for (option of poll.options; track option.id) {
           <button
             type="button"
-            class="option-card"
-            [class.option-card--selected]="selectedOptionId === option.id"
+            class="answer-card"
+            [class.answer-card--selected]="selectedOptionId === option.id"
             (click)="vote(option.id)"
             [disabled]="!!selectedOptionId || voting"
           >
-            <div class="option-card__top">
-              <span>{{ option.text }}</span>
-              <span>{{ getPercentage(option.voteCount) | number:'1.0-0' }}%</span>
+            <div class="answer-card__top">
+              <span class="answer-card__text">{{ option.text }}</span>
+              <span class="answer-card__percent">
+                {{ getPercentage(option.voteCount) | number:'1.0-0' }}%
+              </span>
             </div>
 
-            <div class="option-card__bar">
+            <div class="answer-card__bar">
               <div
-                class="option-card__fill"
+                class="answer-card__fill"
                 [style.width.%]="getPercentage(option.voteCount)"
               ></div>
             </div>
 
-            <div class="option-card__votes">
+            <div class="answer-card__bottom">
               {{ option.voteCount }} votes
             </div>
           </button>
         }
       </div>
+
+      @if (selectedOptionId) {
+        <p class="detail-note">Thank you for voting!</p>
+      }
     </article>
   }
 </section>
