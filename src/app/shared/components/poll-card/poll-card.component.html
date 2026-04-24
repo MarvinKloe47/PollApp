@@ -1,11 +1,11 @@
 <a class="poll-card" [routerLink]="['/poll', poll.id]">
-  <div class="poll-card__top">
+  <div class="poll-card__header">
     <span class="poll-card__category">{{ poll.category }}</span>
 
     @if (isActive) {
-      <span class="poll-card__status active">Aktiv</span>
+      <span class="poll-card__badge">Active</span>
     } @else {
-      <span class="poll-card__status closed">Beendet</span>
+      <span class="poll-card__badge poll-card__badge--closed">Closed</span>
     }
   </div>
 
@@ -14,7 +14,7 @@
   <p>{{ poll.description }}</p>
 
   <div class="poll-card__footer">
-    <span>{{ poll.options.length }} Optionen</span>
-    <span>{{ totalVotes }} Stimmen</span>
+    <span>{{ poll.options.length }} options</span>
+    <span>{{ totalVotes }} votes</span>
   </div>
 </a>
