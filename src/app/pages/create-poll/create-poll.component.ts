@@ -1,10 +1,9 @@
-import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { PollService } from '../../core/services/poll.service';
 import { CreatePollData } from '../../core/models/poll.model';
-
+import { PollService } from '../../core/services/poll.service';
 
 interface QuestionDraft {
   text: string;
@@ -12,29 +11,32 @@ interface QuestionDraft {
   allowMultiple: boolean;
 }
 
+const BASE_OPTIONS = ['', ''];
+const CATEGORY_OPTIONS = [
+  'Team Activities',
+  'Health & Wellness',
+  'Gaming & Entertainment',
+  'Education & Learning',
+  'Lifestyle & Preferences',
+  'Technology & Innovation'
+];
+
 @Component({
   selector: 'app-create-poll-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './create-poll.component.html',
-  styleUrl: './create-poll.component.scss',
+  styleUrl: './create-poll.component.scss'
 })
 export class CreatePollComponent {
-  title = '';
-  description = '';
-  deadline = '';
-  category = '';
-  get minDeadline(): string {
-    const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  }
-  showCategories = false;
-  readonly categories = ['Team Activities', 'Health & Wellness', 'Gaming & Entertainment', 'Education & Learning', 'Lifestyle & Preferences', 'Technology & Innovation'];
+  surveyTitle = '';
+  surveyDescription = '';
+  surveyDeadline = '';
+  surveyCategory = '';
+  categoryMenuOpen = false;
+  readonly categoryOptions = CATEGORY_OPTIONS;
 
-  questions: QuestionDraft[] = [
-    { text: '', options: ['', ''], allowMultiple: false }
-  ];
+  questionDrafts: QuestionDraft[] = [this.createDraft()];
   isSubmitting = signal(false);
   errorMessage = signal<string | null>(null);
   showSuccess = signal(false);
@@ -42,99 +44,133 @@ export class CreatePollComponent {
 
   constructor(private readonly pollService: PollService, private readonly router: Router) {}
 
-  /** Appends a new empty question with two default answer slots. */
-  addQuestion(): void {
-    this.questions.push({ text: '', options: ['', ''], allowMultiple: false });
+  get minDeadline(): string {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   }
 
-  /** Resets the first question instead of removing it to always keep at least one. */
-  removeQuestion(index: number): void {
+  get hasSingleQuestion(): boolean {
+    return this.questionDrafts.length === 1;
+  }
+
+  get showValidationHints(): boolean {
+    return !this.isFormReady();
+  }
+
+  get submitDisabled(): boolean {
+    return !this.isFormReady() || this.isSubmitting();
+  }
+
+  get validationHintList(): string[] {
+    return this.buildValidationHints();
+  }
+
+  appendQuestion(): void {
+    this.questionDrafts.push(this.createDraft());
+  }
+
+  removeQuestionAt(index: number): void {
     if (index === 0) {
-      this.questions[0].text = '';
-      this.questions[0].options = ['', ''];
-      this.questions[0].allowMultiple = false;
+      this.resetDraft(this.questionDrafts[0]);
+      return;
+    }
+
+    this.questionDrafts.splice(index, 1);
+  }
+
+  appendAnswer(questionIndex: number): void {
+    this.questionDrafts[questionIndex].options.push('');
+  }
+
+  removeAnswer(questionIndex: number, optionIndex: number): void {
+    const options = this.questionDrafts[questionIndex].options;
+    if (options.length > 2) {
+      options.splice(optionIndex, 1);
     } else {
-      this.questions.splice(index, 1);
+      options[optionIndex] = '';
     }
   }
 
-  /** Adds an empty answer slot to the given question. */
-  addOption(questionIndex: number): void {
-    this.questions[questionIndex].options.push('');
-  }
-
-  /** Removes an answer option or clears it if only two remain. */
-  removeOption(questionIndex: number, optionIndex: number): void {
-    if (this.questions[questionIndex].options.length > 2) {
-      this.questions[questionIndex].options.splice(optionIndex, 1);
-    } else {
-      this.questions[questionIndex].options[optionIndex] = '';
-    }
-  }
-
-  /** Maps a zero-based index to A, B, C, D... for option labels. */
-  getLetter(index: number): string {
+  getAnswerLabel(index: number): string {
     return String.fromCharCode(65 + index);
   }
 
-  /** Selects a category and closes the dropdown. */
-  selectCategory(cat: string): void {
-    this.category = cat;
-    this.showCategories = false;
+  setCategory(category: string): void {
+    this.surveyCategory = category;
+    this.categoryMenuOpen = false;
   }
 
-  /** Returns list of validation issues for display. */
-  validationHints(): string[] {
+  buildValidationHints(): string[] {
     const hints: string[] = [];
-    if (!this.title.trim()) hints.push('Survey name is required.');
-    const validOptions = this.questions[0].options.filter(o => o.trim().length > 0);
-    if (validOptions.length < 2) hints.push('At least 2 answers are required.');
-    if (this.deadline && new Date(this.deadline) <= new Date()) hints.push('Deadline must be in the future.');
+    if (!this.surveyTitle.trim()) hints.push('Survey name is required.');
+    if (this.getValidOptions(this.primaryQuestion).length < 2) hints.push('At least 2 answers are required.');
+    if (this.surveyDeadline && new Date(this.surveyDeadline) <= new Date()) hints.push('Deadline must be in the future.');
     return hints;
   }
 
-  /** Title and at least two non-empty options are required. Deadline must not be in the past. */
-  isFormValid(): boolean {
-    return this.validationHints().length === 0;
+  isFormReady(): boolean {
+    return this.buildValidationHints().length === 0;
   }
 
-  /** Validates, builds the payload and delegates to the poll service. */
-  async handleSubmit(): Promise<void> {
-    if (!this.isFormValid() || this.isSubmitting()) return;
+  async submitForm(): Promise<void> {
+    if (!this.isFormReady() || this.isSubmitting()) return;
 
-    this.isSubmitting.set(true);
-    this.errorMessage.set(null);
-    const data: CreatePollData = {
-      title: this.title.trim(),
-      description: this.description.trim(),
-      deadline: this.deadline,
-      options: this.questions[0].options.filter(o => o.trim().length > 0),
-      category: this.category,
-    };
-
-    const result = await this.pollService.createPoll(data);
-
-    if (result) {
-      this.createdPollId = result;
+    try {
+      this.isSubmitting.set(true);
+      this.errorMessage.set(null);
+      const pollId = await this.pollService.createPoll(this.buildPayload());
+      this.createdPollId = pollId;
       this.showSuccess.set(true);
-    } else {
+    } catch {
       this.errorMessage.set('Failed to create poll. Please try again.');
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  closeSuccess(): void {
+    if (!this.createdPollId) {
+      this.router.navigate(['/']);
+      return;
     }
 
-    this.isSubmitting.set(false);
-  }
-
-  closeSuccessOverlay(): void {
     this.router.navigate(['/poll', this.createdPollId]);
   }
 
-  /** Navigates back to the home page. */
-  handleClose(): void {
+  closeModal(): void {
     this.router.navigate(['/']);
   }
 
-  /** Prevents clicks inside the modal from bubbling up to the backdrop. */
-  stopPropagation(event: Event): void {
+  stopModalClick(event: Event): void {
     event.stopPropagation();
+  }
+
+  private createDraft(): QuestionDraft {
+    return { text: '', options: [...BASE_OPTIONS], allowMultiple: false };
+  }
+
+  private resetDraft(draft: QuestionDraft): void {
+    draft.text = '';
+    draft.options = [...BASE_OPTIONS];
+    draft.allowMultiple = false;
+  }
+
+  private get primaryQuestion(): QuestionDraft {
+    return this.questionDrafts[0];
+  }
+
+  private getValidOptions(question: QuestionDraft): string[] {
+    return question.options.map((option) => option.trim()).filter((option) => option.length > 0);
+  }
+
+  private buildPayload(): CreatePollData {
+    return {
+      title: this.surveyTitle.trim(),
+      description: this.surveyDescription.trim(),
+      deadline: this.surveyDeadline,
+      options: this.getValidOptions(this.primaryQuestion),
+      category: this.surveyCategory
+    };
   }
 }
