@@ -12,6 +12,7 @@ export interface Poll {
   description: string;
   deadline: string;
   category: string;
+  allow_multiple: boolean;
   createdAt?: string;
   options: PollOption[];
 }
@@ -29,5 +30,6 @@ export interface CreatePollData {
   description: string;
   deadline: string;
   category: string;
+  allow_multiple: boolean;
   options: string[];
 }

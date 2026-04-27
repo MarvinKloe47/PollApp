@@ -46,9 +46,11 @@
               1. {{ poll.title }}
             </h2>
 
-            <p class="pd-question__hint">
-              More than one answers are possible.
-            </p>
+            @if (poll.allow_multiple) {
+              <p class="pd-question__hint">
+                More than one answers are possible.
+              </p>
+            }
           </header>
 
           <ul class="pd-options" role="list">
@@ -57,16 +59,16 @@
                 <button
                   class="pd-option"
                   type="button"
-                  [class.pd-option--selected]="selectedOptionId === option.id"
-                  [class.pd-option--voted]="!!selectedOptionId"
-                  [disabled]="!!selectedOptionId || voting || isPollPast()"
-                  [attr.aria-pressed]="selectedOptionId === option.id"
+                  [class.pd-option--selected]="isOptionSelected(option.id)"
+                  [class.pd-option--voted]="hasVoted"
+                  [disabled]="isOptionDisabled(option.id)"
+                  [attr.aria-pressed]="isOptionSelected(option.id)"
                   [attr.aria-label]="'Vote for: ' + option.text"
                   (click)="vote(option.id)"
                 >
                   <span
                     class="pd-option__checkbox"
-                    [class.pd-option__checkbox--checked]="selectedOptionId === option.id"
+                    [class.pd-option__checkbox--checked]="isOptionSelected(option.id)"
                     aria-hidden="true"
                   ></span>
 
@@ -80,11 +82,11 @@
         </div>
 
         <footer class="pd-survey__footer">
-          @if (selectedOptionId) {
+          @if (hasVoted) {
             <p class="pd-voted-hint">Your vote was counted &#10003;</p>
           }
 
-          @if (isPollPast() && !selectedOptionId) {
+          @if (isPollPast() && !hasVoted) {
             <p class="pd-voted-hint">This survey has ended.</p>
           }
 

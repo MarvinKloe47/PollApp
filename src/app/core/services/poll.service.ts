@@ -31,7 +31,8 @@ export class PollService {
         title: pollData.title,
         description: pollData.description,
         deadline: pollData.deadline,
-        category: pollData.category
+        category: pollData.category,
+        allow_multiple: pollData.allow_multiple
       })
       .select()
       .single();
@@ -98,19 +99,18 @@ async vote(
   }
 }
 
-async getUserVote(pollId: string, voterIdentifier: string): Promise<string | null> {
+async getUserVotes(pollId: string, voterIdentifier: string): Promise<string[]> {
   const { data, error } = await this.supabase
     .from('votes')
     .select('option_id')
     .eq('poll_id', pollId)
-    .eq('voter_identifier', voterIdentifier)
-    .maybeSingle();
+    .eq('voter_identifier', voterIdentifier);
 
   if (error || !data) {
-    return null;
+    return [];
   }
 
-  return data.option_id;
+  return data.map((row) => row.option_id);
 }
 subscribeToPollUpdates(pollId: string, callback: () => void) {
   return this.supabase

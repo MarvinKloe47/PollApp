@@ -15,7 +15,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
   poll: Poll | null = null;
   loading = true;
   error = '';
-  selectedOptionId: string | null = null;
+  selectedOptionIds: string[] = [];
   voting = false;
   private voteSubscription: any;
 
@@ -56,7 +56,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
   async loadUserVote(pollId: string): Promise<void> {
     const voterId = this.getVoterIdentifier();
-    this.selectedOptionId = await this.pollService.getUserVote(pollId, voterId);
+    const votes = await this.pollService.getUserVotes(pollId, voterId);
+    this.selectedOptionIds = this.canVoteMultiple ? votes : votes.slice(0, 1);
   }
 
   subscribeToLiveVotes(pollId: string): void {
@@ -90,6 +91,30 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     );
   }
 
+  get canVoteMultiple(): boolean {
+    return !!this.poll?.allow_multiple;
+  }
+
+  get hasVoted(): boolean {
+    return this.selectedOptionIds.length > 0;
+  }
+
+  isOptionSelected(optionId: string): boolean {
+    return this.selectedOptionIds.includes(optionId);
+  }
+
+  isOptionDisabled(optionId: string): boolean {
+    if (this.voting || this.isPollPast()) {
+      return true;
+    }
+
+    if (this.canVoteMultiple) {
+      return this.isOptionSelected(optionId);
+    }
+
+    return this.hasVoted;
+  }
+
   getPercentage(votes: number): number {
     if (this.totalVotes === 0) {
       return 0;
@@ -99,7 +124,15 @@ export class PollDetailComponent implements OnInit, OnDestroy {
   }
 
   async vote(optionId: string): Promise<void> {
-    if (!this.poll || this.selectedOptionId) {
+    if (!this.poll) {
+      return;
+    }
+
+    if (!this.canVoteMultiple && this.hasVoted) {
+      return;
+    }
+
+    if (this.canVoteMultiple && this.isOptionSelected(optionId)) {
       return;
     }
 
@@ -112,7 +145,9 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.getVoterIdentifier()
       );
 
-      this.selectedOptionId = optionId;
+      this.selectedOptionIds = this.canVoteMultiple
+        ? [...this.selectedOptionIds, optionId]
+        : [optionId];
       await this.loadPoll(this.poll.id);
     } catch {
       this.error = 'Vote fehlgeschlagen';
