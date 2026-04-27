@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 
+/**
+ * Hosts the application shell and renders the global navigation.
+ */
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -35,8 +38,18 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
+  /**
+   * Creates the root component with access to the current router state.
+   *
+   * @param router Router used for navigation and route-aware UI state.
+   */
   constructor(public router: Router) {}
 
+  /**
+   * Determines whether the current route should use the light navigation style.
+   *
+   * @returns `true` when the active route is a poll detail page.
+   */
   isLightPage(): boolean {
     return this.router.url.startsWith('/poll/');
   }
