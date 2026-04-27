@@ -14,7 +14,8 @@ export class PollService {
     const { data, error } = await this.supabase
       .from('polls')
       .select('*, options(*)')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .order('id', { foreignTable: 'options', ascending: true });
 
     if (error) {
       throw error;
@@ -60,6 +61,7 @@ export class PollService {
     .from('polls')
     .select('*, options(*)')
     .eq('id', id)
+    .order('id', { foreignTable: 'options', ascending: true })
     .single();
 
   if (error) {
