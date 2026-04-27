@@ -569,6 +569,22 @@
     min-height: 100vh;
     height: 100vh;
     box-sizing: border-box;
+
+    /* Custom Scrollbar für das Modal auf Mobile */
+    &::-webkit-scrollbar {
+      width: 8px;
+      background: #3B2D42;
+      border-radius: 8px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #FFB770;
+      border-radius: 8px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: #e8a050;
+    }
+    scrollbar-width: thin;
+    scrollbar-color: #FFB770 #3B2D42;
   }
 
   .poll-create__nav-inner {
