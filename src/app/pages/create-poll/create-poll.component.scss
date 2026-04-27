@@ -419,6 +419,58 @@
   &:not(:disabled):hover { background: #e8a050; }
 }
 
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1200;
+}
+
+.success-overlay__box {
+  background-image: url('/Overlay.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: min(357px, 90vw);
+  aspect-ratio: 357 / 86;
+  height: auto;
+  position: relative;
+}
+
+.success-overlay__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .success-overlay {
+    padding: 1.5rem;
+  }
+}
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(24px) scale(0.97); }

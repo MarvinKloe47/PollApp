@@ -2,120 +2,65 @@
   <div class="modal-backdrop__nav">
     <div class="modal-backdrop__nav-inner">
       <a class="modal-backdrop__logo" routerLink="/" aria-label="PollApp home">
-        <img src="logo_dark.svg" alt="Poll App" width="119" height="50" />
+        <img src="logo_dark.svg" alt="Poll App" width="119" height="50">
       </a>
     </div>
   </div>
+  <dialog class="modal" open aria-labelledby="modal-title" aria-modal="true" (click)="stopPropagation($event)">
 
-  <dialog
-    class="modal"
-    open
-    aria-labelledby="modal-title"
-    aria-modal="true"
-    (click)="stopPropagation($event)"
-  >
     <div class="modal__top">
       <span class="modal__draft">Draft</span>
-
       <div class="modal__top-row">
         <h2 id="modal-title" class="modal__title">Create new survey</h2>
-
         <button class="modal__cancel" type="button" (click)="handleClose()">
           <span class="modal__cancel-label">Cancel&nbsp;</span>X
         </button>
       </div>
     </div>
 
-    <form (ngSubmit)="submit()" novalidate>
-      <input type="hidden" [(ngModel)]="category" name="category" />
+    <form (ngSubmit)="handleSubmit()" novalidate>
+      <input type="hidden" [(ngModel)]="category" name="category">
 
       <div class="modal__card">
+
         <div class="modal__meta">
+
           <div class="meta-left">
             <div class="field">
-              <label class="field__label" for="poll-title">
-                Survey name <span class="field__required">*</span>
-              </label>
-
+              <label class="field__label" for="poll-title">Survey name <span class="field__required">*</span></label>
               <div class="field__row">
-                <input
-                  id="poll-title"
-                  class="field__input"
-                  type="text"
-                  [(ngModel)]="title"
-                  name="title"
-                  maxlength="200"
-                  required
-                />
-
-                <button
-                  class="icon-btn"
-                  type="button"
-                  (click)="title = ''"
-                  aria-label="Clear name"
-                >
-                  <img src="delete.svg" alt="delete" />
+                <input id="poll-title" class="field__input" type="text"
+                  [(ngModel)]="title" name="title" maxlength="200" required />
+                <button class="icon-btn" type="button" (click)="title = ''" aria-label="Clear name">
+                  <img src="delete.svg" alt="delete" >
                 </button>
               </div>
             </div>
-
             <div class="meta-left__inline">
               <div class="field">
-                <label class="field__label" for="poll-deadline">
-                  Set end date <span class="field__opt">(optional)</span>
-                </label>
-
+                <label class="field__label" for="poll-deadline">Set end date <span class="field__opt">(optional)</span></label>
                 <div class="field__row">
-                  <input
-                    #deadlineInput
-                    id="poll-deadline"
-                    class="field__input field__input--date"
-                    type="datetime-local"
-                    [(ngModel)]="deadline"
-                    name="deadline"
-                    [min]="minDeadline"
+                  <input #deadlineInput id="poll-deadline" class="field__input field__input--date" type="datetime-local"
+                    [(ngModel)]="deadline" name="deadline" [min]="minDeadline"
                     (click)="deadlineInput.showPicker()"
-                  />
-
-                  <button
-                    class="icon-btn"
-                    type="button"
-                    (click)="deadline = ''"
-                    aria-label="Clear deadline"
-                  >
-                    <img src="delete.svg" alt="delete" />
+                    (keydown)="$event.key !== 'Tab' && $event.key !== 'Enter' && $event.preventDefault()" />
+                  <button class="icon-btn" type="button" (click)="deadline = ''" aria-label="Clear deadline">
+                    <img src="delete.svg" alt="delete" >
                   </button>
                 </div>
               </div>
-
               <div class="category-dropdown">
-                <button
-                  class="category-btn"
-                  type="button"
-                  (click)="showCategories = !showCategories"
-                >
-                  Choose category
-                  <span class="category-btn__arrow">
-                    {{ showCategories ? '▲' : '▼' }}
-                  </span>
+                <button class="category-btn" type="button" (click)="showCategories = !showCategories">
+                  Choose category <span class="category-btn__arrow">{{ showCategories ? '&#9650;' : '&#9660;' }}</span>
                 </button>
-
                 @if (category) {
                   <span class="category-btn__selected">{{ category }}</span>
                 }
-
                 @if (showCategories) {
                   <ul class="category-list">
                     @for (cat of categories; track cat) {
                       <li>
-                        <button
-                          class="category-list__item"
-                          [class.category-list__item--active]="category === cat"
-                          type="button"
-                          (click)="selectCategory(cat)"
-                        >
-                          {{ cat }}
-                        </button>
+                        <button class="category-list__item" [class.category-list__item--active]="category === cat" type="button" (click)="selectCategory(cat)">{{ cat }}</button>
                       </li>
                     }
                   </ul>
@@ -126,27 +71,13 @@
 
           <div class="meta-right">
             <div class="field">
-              <label class="field__label" for="poll-description">
-                Describing text <span class="field__opt">(optional)</span>
-              </label>
-
+              <label class="field__label" for="poll-description">Describing text <span class="field__opt">(optional)</span></label>
               <div class="field__row field__row--textarea">
-                <textarea
-                  id="poll-description"
-                  class="field__textarea"
-                  [(ngModel)]="description"
-                  name="description"
-                  rows="5"
-                  maxlength="1000"
-                ></textarea>
-
-                <button
-                  class="icon-btn icon-btn--top"
-                  type="button"
-                  (click)="description = ''"
-                  aria-label="Clear description"
-                >
-                  <img src="delete.svg" alt="delete" />
+                <textarea id="poll-description" class="field__textarea"
+                  [(ngModel)]="description" name="description"
+                  rows="5" maxlength="1000"></textarea>
+                <button class="icon-btn icon-btn--top" type="button" (click)="description = ''" aria-label="Clear description">
+                  <img src="delete.svg" alt="delete" >
                 </button>
               </div>
             </div>
@@ -154,84 +85,56 @@
         </div>
 
         <div class="modal__questions">
-          <div class="question">
-            <div class="question__hd">
-              <span class="question__label">1. Question</span>
-
-              <button
-                class="icon-btn"
-                type="button"
-                (click)="clearQuestion()"
-                aria-label="Remove question"
-              >
-                <img src="delete.svg" alt="delete" />
-              </button>
-            </div>
-
-            <input
-              class="field__input"
-              type="text"
-              [(ngModel)]="questionText"
-              name="questionText"
-              placeholder="Which date would work best for you?"
-              maxlength="500"
-            />
-
-            <div class="question__answers">
-              <div class="answers__hd">
-                <span class="field__label">
-                  Answers <span class="field__required">*</span>
-                </span>
-
-                <label class="answers__multi-label">
-                  <input type="checkbox" [(ngModel)]="allowMultiple" name="allowMultiple" />
-                  Allow multiple answers.
-                </label>
+          @for (q of questions; track i; let i = $index) {
+            <div class="question">
+              <div class="question__hd">
+                <span class="question__label">{{ i + 1 }}. Question</span>
+                <button class="icon-btn" type="button" (click)="removeQuestion(i)" aria-label="Remove question">
+                  <img src="delete.svg" alt="delete" >
+                </button>
               </div>
-
-              @for (option of options; track $index) {
-                <div class="answer-row">
-                  <span class="answer-row__letter">{{ getLetter($index) }}.</span>
-
-                  <input
-                    class="field__input"
-                    type="text"
-                    [(ngModel)]="options[$index]"
-                    name="option-{{ $index }}"
-                    maxlength="200"
-                  />
-
-                  <button
-                    class="icon-btn"
-                    type="button"
-                    (click)="removeOption($index)"
-                    aria-label="Remove option"
-                  >
-                    <img src="delete.svg" alt="delete" />
-                  </button>
+              <input class="field__input" type="text"
+                [(ngModel)]="q.text" [name]="'qt' + i"
+                placeholder="Which date would work best for you?" maxlength="500" />
+              <div class="question__answers">
+                <div class="answers__hd">
+                  <span class="field__label">Answers <span class="field__required">*</span></span>
+                  <label class="answers__multi-label">
+                    <input type="checkbox" [(ngModel)]="q.allowMultiple" [name]="'multi' + i" />
+                    Allow multiple answers.
+                  </label>
                 </div>
-              }
-
-              <button class="add-answer-btn" type="button" (click)="addOption()">
-                Add answer <img src="add_circle.svg" alt="+" />
+                @for (opt of q.options; track j; let j = $index) {
+                  <div class="answer-row">
+                    <span class="answer-row__letter">{{ getLetter(j) }}.</span>
+                    <input class="field__input" type="text"
+                      [(ngModel)]="questions[i].options[j]" [name]="'q' + i + 'o' + j" maxlength="200" />
+                    <button class="icon-btn" type="button" (click)="removeOption(i, j)" aria-label="Remove option">
+                      <img src="delete.svg" alt="delete" >
+                    </button>
+                  </div>
+                }
+                <button class="add-answer-btn" type="button" (click)="addOption(i)">Add answer <img src="add_circle.svg" alt="+" ></button>
+              </div>
+            </div>
+          }
+          @if (questions.length === 1) {
+            <div class="add-question-col">
+              <button class="add-question-btn" type="button" (click)="addQuestion()">
+                Add next question <img src="add_circle.svg" alt="+" >
               </button>
             </div>
-          </div>
-
-          <div class="add-question-col">
-            <button class="add-question-btn" type="button">
-              Add next question <img src="add_circle.svg" alt="+" />
-            </button>
-          </div>
+          }
         </div>
 
-        <button class="add-question-btn add-question-btn--below add-question-btn--hidden-desktop" type="button">
-          Add next question <img src="add_circle.svg" alt="+" />
+        <button class="add-question-btn add-question-btn--below" [class.add-question-btn--hidden-desktop]="questions.length === 1" type="button" (click)="addQuestion()">
+          Add next question <img src="add_circle.svg" alt="+" >
         </button>
+
       </div>
 
-      @if (error) {
-        <p class="modal__error" role="alert">{{ error }}</p>
+      @if (errorMessage()) {
+        <p class="modal__error" role="alert">{{ errorMessage() }}</p>
       }
 
       <div class="modal__footer">
@@ -242,11 +145,25 @@
             }
           </ul>
         }
-
-        <button class="publish-btn" type="submit" [disabled]="!isFormValid() || loading">
-          {{ loading ? 'Creating...' : 'Publish' }}
+        <button class="publish-btn" type="submit" [disabled]="!isFormValid() || isSubmitting()">
+          {{ isSubmitting() ? 'Creating...' : 'Publish' }}
         </button>
       </div>
+
     </form>
   </dialog>
 </div>
+
+@if (showSuccess()) {
+  <div class="success-overlay" (click)="closeSuccessOverlay()">
+    <div class="success-overlay__box" (click)="$event.stopPropagation()">
+      <span class="sr-only">Your survey was created successfully!</span>
+      <button
+        class="success-overlay__close"
+        type="button"
+        aria-label="Close"
+        (click)="closeSuccessOverlay()"
+      ></button>
+    </div>
+  </div>
+}
