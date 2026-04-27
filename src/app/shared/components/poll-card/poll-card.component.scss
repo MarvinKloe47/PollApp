@@ -60,3 +60,87 @@
   font-weight: 700;
   padding: 0.25rem 0.8rem;
 }
+
+@media (max-width: 640px) {
+  :host {
+    background: #ffffff;
+  }
+
+  .pd-page {
+    padding: 2rem 14px 3rem;
+  }
+
+  .pd-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .pd-survey-card {
+    width: 100%;
+    padding: 1.25rem 1rem 2rem;
+    border-radius: 0 70px 0 0;
+    min-height: auto;
+  }
+
+  .pd-meta-row {
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 12px;
+  }
+
+  .pd-survey-card h1 {
+    font-size: 40px;
+    line-height: 0.95;
+  }
+
+  .pd-description {
+    font-size: 14px;
+  }
+
+  .pd-question {
+    margin-top: 2rem;
+  }
+
+  .pd-question h2 {
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .pd-question p {
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .pd-option {
+    font-size: 14px;
+    align-items: flex-start;
+  }
+
+  .pd-footer {
+    justify-content: flex-end;
+    margin-top: 2.5rem;
+  }
+
+  .pd-complete-btn {
+    font-size: 16px;
+    padding: 0.75rem 1.1rem;
+  }
+
+  .pd-results {
+    padding: 0 10px 2rem;
+  }
+
+  .pd-results h2 {
+    font-size: 26px;
+  }
+
+  .pd-result-block h3 {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .pd-bar-row {
+    grid-template-columns: 18px 1fr 38px;
+  }
+}
