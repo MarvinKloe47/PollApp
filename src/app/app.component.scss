@@ -63,3 +63,19 @@
 .app-nav--light .app-nav__create-btn:hover {
   background: #ffb770;
 }
+
+@media (max-width: 640px) {
+  .app-nav__create-btn {
+    font-size: 12px;
+    padding: 0.35rem 0.85rem;
+  }
+
+  .app-nav--light .app-nav__inner {
+    padding: 0 1.25rem;
+  }
+
+  .app-nav--light .app-nav__create-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
