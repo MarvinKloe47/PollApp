@@ -21,8 +21,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
   loading = true;
   /** User-facing error message shown when loading or voting fails. */
   error = '';
-  /** Option already selected by the current visitor, if any. */
-  selectedOptionId: string | null = null;
+  /** Option identifiers already selected by the current visitor, if any. */
+  selectedOptionIds: string[] = [];
   /** Indicates whether a vote request is currently in flight. */
   voting = false;
   /** Live update subscription for the current poll. */
@@ -87,7 +87,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
    */
   async loadUserVote(pollId: string): Promise<void> {
     const voterId = this.getVoterIdentifier();
-    this.selectedOptionId = await this.pollService.getUserVote(pollId, voterId);
+    const votes = await this.pollService.getUserVotes(pollId, voterId);
+    this.selectedOptionIds = this.canVoteMultiple ? votes : votes.slice(0, 1);
   }
 
   /**
@@ -136,6 +137,42 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     );
   }
 
+  get canVoteMultiple(): boolean {
+    return !!this.poll?.allow_multiple;
+  }
+
+  get hasVoted(): boolean {
+    return this.selectedOptionIds.length > 0;
+  }
+
+  /**
+   * Indicates whether the visitor has already selected the provided option.
+   *
+   * @param optionId Identifier of the option to check.
+   * @returns `true` when the option is already part of the visitor's vote.
+   */
+  isOptionSelected(optionId: string): boolean {
+    return this.selectedOptionIds.includes(optionId);
+  }
+
+  /**
+   * Determines whether an option should be disabled in the UI.
+   *
+   * @param optionId Identifier of the option being evaluated.
+   * @returns `true` when the option can no longer be selected.
+   */
+  isOptionDisabled(optionId: string): boolean {
+    if (this.voting || this.isPollPast()) {
+      return true;
+    }
+
+    if (this.canVoteMultiple) {
+      return this.isOptionSelected(optionId);
+    }
+
+    return this.hasVoted;
+  }
+
   /**
    * Converts a vote count into a percentage of the total.
    *
@@ -156,7 +193,15 @@ export class PollDetailComponent implements OnInit, OnDestroy {
    * @param optionId Identifier of the option being voted for.
    */
   async vote(optionId: string): Promise<void> {
-    if (!this.poll || this.selectedOptionId) {
+    if (!this.poll) {
+      return;
+    }
+
+    if (!this.canVoteMultiple && this.hasVoted) {
+      return;
+    }
+
+    if (this.canVoteMultiple && this.isOptionSelected(optionId)) {
       return;
     }
 
@@ -169,7 +214,9 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.getVoterIdentifier()
       );
 
-      this.selectedOptionId = optionId;
+      this.selectedOptionIds = this.canVoteMultiple
+        ? [...this.selectedOptionIds, optionId]
+        : [optionId];
       await this.loadPoll(this.poll.id);
     } catch {
       this.error = 'Vote fehlgeschlagen';

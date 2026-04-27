@@ -304,7 +304,8 @@ export class CreatePollComponent {
       description: this.surveyDescription.trim(),
       deadline: this.surveyDeadline,
       options: this.getValidOptions(this.primaryQuestion),
-      category: this.surveyCategory
+      category: this.surveyCategory,
+      allow_multiple: this.primaryQuestion.allowMultiple
     };
   }
 }

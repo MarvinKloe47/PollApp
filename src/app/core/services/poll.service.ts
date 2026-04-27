@@ -51,7 +51,8 @@ export class PollService {
         title: pollData.title,
         description: pollData.description,
         deadline: pollData.deadline,
-        category: pollData.category
+        category: pollData.category,
+        allow_multiple: pollData.allow_multiple
       })
       .select()
       .single();
@@ -155,6 +156,30 @@ export class PollService {
     }
 
     return data.option_id;
+  }
+
+  /**
+   * Resolves all options previously selected by a voter for a poll.
+   *
+   * @param pollId Identifier of the poll to inspect.
+   * @param voterIdentifier Stable client-side identifier for the voter.
+   * @returns A list of chosen option identifiers.
+   */
+  async getUserVotes(
+    pollId: string,
+    voterIdentifier: string
+  ): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .from('votes')
+      .select('option_id')
+      .eq('poll_id', pollId)
+      .eq('voter_identifier', voterIdentifier);
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data.map((row) => row.option_id);
   }
 
   /**
