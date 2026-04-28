@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { PollService } from '../../core/services/poll.service';
-import { Poll } from '../../core/models/poll.model';
+import { Poll, PollQuestion } from '../../core/models/poll.model';
 
 /**
  * Renders a single poll, its voting state, and live vote updates.
@@ -83,7 +83,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
   async loadUserVote(pollId: string): Promise<void> {
     const voterId = this.getVoterIdentifier();
     const votes = await this.pollService.getUserVotes(pollId, voterId);
-    this.selectedOptionIds = this.canVoteMultiple ? votes : votes.slice(0, 1);
+    this.selectedOptionIds = votes;
   }
 
   /**
@@ -133,12 +133,12 @@ export class PollDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Indicates whether the loaded poll allows multiple selected answers.
+   * Indicates whether any poll question allows multiple selected answers.
    *
-   * @returns `true` when multiple options can be voted for.
+   * @returns `true` when at least one question accepts multiple answers.
    */
   get canVoteMultiple(): boolean {
-    return !!this.poll?.allow_multiple;
+    return !!this.poll?.questions.some((question) => question.allow_multiple);
   }
 
   /**
@@ -161,35 +161,59 @@ export class PollDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Indicates whether the visitor has already voted in a question.
+   *
+   * @param question Question whose voting state should be checked.
+   * @returns `true` when one of the question's options was selected.
+   */
+  hasVotedInQuestion(question: PollQuestion): boolean {
+    return question.options.some((option) => this.isOptionSelected(option.id));
+  }
+
+  /**
    * Determines whether an option should be disabled in the UI.
    *
    * @param optionId Identifier of the option being evaluated.
+   * @param question Question that owns the option.
    * @returns `true` when the option can no longer be selected.
    */
-  isOptionDisabled(optionId: string): boolean {
+  isOptionDisabled(optionId: string, question: PollQuestion): boolean {
     if (this.voting || this.isPollPast()) {
       return true;
     }
 
-    if (this.canVoteMultiple) {
+    if (question.allow_multiple) {
       return this.isOptionSelected(optionId);
     }
 
-    return this.hasVoted;
+    return this.hasVotedInQuestion(question);
+  }
+
+  /**
+   * Computes the total number of votes for one question.
+   *
+   * @param question Question whose answer votes should be summed.
+   * @returns Sum of vote counts for the question.
+   */
+  getQuestionVotes(question: PollQuestion): number {
+    return question.options.reduce((sum, option) => sum + option.vote_count, 0);
   }
 
   /**
    * Converts a vote count into a percentage of the total.
    *
    * @param votes Number of votes for the option.
+   * @param question Question used as the percentage base.
    * @returns Percentage value between `0` and `100`.
    */
-  getPercentage(votes: number): number {
-    if (this.totalVotes === 0) {
+  getPercentage(votes: number, question: PollQuestion): number {
+    const questionVotes = this.getQuestionVotes(question);
+
+    if (questionVotes === 0) {
       return 0;
     }
 
-    return (votes / this.totalVotes) * 100;
+    return (votes / questionVotes) * 100;
   }
 
   /**
@@ -202,11 +226,9 @@ export class PollDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.canVoteMultiple && this.hasVoted) {
-      return;
-    }
+    const question = this.getQuestionForOption(optionId);
 
-    if (this.canVoteMultiple && this.isOptionSelected(optionId)) {
+    if (!question || this.isOptionDisabled(optionId, question)) {
       return;
     }
 
@@ -219,9 +241,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.getVoterIdentifier()
       );
 
-      this.selectedOptionIds = this.canVoteMultiple
-        ? [...this.selectedOptionIds, optionId]
-        : [optionId];
+      this.selectedOptionIds = [...this.selectedOptionIds, optionId];
       await this.loadPoll(this.poll.id);
     } catch {
       this.error = 'Vote fehlgeschlagen';
@@ -238,6 +258,18 @@ export class PollDetailComponent implements OnInit, OnDestroy {
    */
   getOptionLetter(index: number): string {
     return String.fromCharCode(65 + index);
+  }
+
+  /**
+   * Finds the question that owns an answer option.
+   *
+   * @param optionId Identifier of the option to find.
+   * @returns Owning question or `null` when not found.
+   */
+  private getQuestionForOption(optionId: string): PollQuestion | null {
+    return this.poll?.questions.find((question) =>
+      question.options.some((option) => option.id === optionId)
+    ) ?? null;
   }
 
   /**

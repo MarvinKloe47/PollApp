@@ -1,7 +1,16 @@
 import { Injectable } from '@angular/core';
 import { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
-import { CreatePollData, Poll } from '../models/poll.model';
+import { CreatePollData, Poll, PollOption, PollQuestion } from '../models/poll.model';
+
+interface StoredOptionMetadata {
+  questionIndex: number;
+  question: string;
+  option: string;
+  allowMultiple: boolean;
+}
+
+const OPTION_METADATA_PREFIX = '__pollapp_option__:';
 
 /**
  * Encapsulates all poll-related database operations.
@@ -35,7 +44,7 @@ export class PollService {
       throw error;
     }
 
-    return data as Poll[];
+    return (data as Poll[]).map((poll) => this.normalizePoll(poll));
   }
 
   /**
@@ -52,7 +61,7 @@ export class PollService {
         description: pollData.description,
         deadline: pollData.deadline,
         category: pollData.category,
-        allow_multiple: pollData.allow_multiple
+        allow_multiple: pollData.questions.some((question) => question.allow_multiple)
       })
       .select()
       .single();
@@ -61,11 +70,18 @@ export class PollService {
       throw pollError;
     }
 
-    const options = pollData.options.map((text) => ({
-      poll_id: poll.id,
-      text,
-      vote_count: 0
-    }));
+    const options = pollData.questions.flatMap((question, questionIndex) =>
+      question.options.map((text) => ({
+        poll_id: poll.id,
+        text: this.encodeOptionText({
+          questionIndex,
+          question: question.text,
+          option: text,
+          allowMultiple: question.allow_multiple
+        }),
+        vote_count: 0
+      }))
+    );
 
     const { error: optionsError } = await this.supabase
       .from('options')
@@ -96,7 +112,7 @@ export class PollService {
       return null;
     }
 
-    return data as Poll;
+    return this.normalizePoll(data as Poll);
   }
 
   /**
@@ -203,5 +219,97 @@ export class PollService {
         () => callback()
       )
       .subscribe();
+  }
+
+  /**
+   * Converts stored option metadata into grouped poll questions.
+   *
+   * @param poll Poll row returned by Supabase.
+   * @returns Poll with display-ready options and grouped questions.
+   */
+  private normalizePoll(poll: Poll): Poll {
+    const questions = new Map<string, PollQuestion>();
+
+    for (const option of poll.options ?? []) {
+      const metadata = this.decodeOptionText(option.text, poll);
+      const normalizedOption: PollOption = {
+        ...option,
+        text: metadata.option
+      };
+
+      const questionId = `${metadata.questionIndex}-${metadata.question}`;
+
+      if (!questions.has(questionId)) {
+        questions.set(questionId, {
+          id: questionId,
+          text: metadata.question,
+          allow_multiple: metadata.allowMultiple,
+          options: []
+        });
+      }
+
+      questions.get(questionId)!.options.push(normalizedOption);
+    }
+
+    const groupedQuestions = Array.from(questions.values());
+
+    return {
+      ...poll,
+      options: groupedQuestions.flatMap((question) => question.options),
+      questions: groupedQuestions.length > 0
+        ? groupedQuestions
+        : [{
+            id: 'legacy',
+            text: poll.title,
+            allow_multiple: poll.allow_multiple,
+            options: []
+          }]
+    };
+  }
+
+  /**
+   * Stores question metadata inside the existing option text column.
+   *
+   * @param metadata Question and answer data to encode.
+   * @returns Encoded option text persisted in Supabase.
+   */
+  private encodeOptionText(metadata: StoredOptionMetadata): string {
+    return `${OPTION_METADATA_PREFIX}${JSON.stringify(metadata)}`;
+  }
+
+  /**
+   * Reads question metadata from a stored option text value.
+   *
+   * @param text Option text from Supabase.
+   * @param poll Poll used for legacy fallback metadata.
+   * @returns Decoded metadata for grouping and display.
+   */
+  private decodeOptionText(text: string, poll: Poll): StoredOptionMetadata {
+    if (!text.startsWith(OPTION_METADATA_PREFIX)) {
+      return {
+        questionIndex: 0,
+        question: poll.title,
+        option: text,
+        allowMultiple: poll.allow_multiple
+      };
+    }
+
+    try {
+      const metadata = JSON.parse(text.slice(OPTION_METADATA_PREFIX.length)) as Partial<StoredOptionMetadata>;
+
+      return {
+        question: metadata.question || poll.title,
+        questionIndex: metadata.questionIndex ?? 0,
+        option: metadata.option || '',
+        allowMultiple: !!metadata.allowMultiple
+      };
+    } catch {
+      return {
+        questionIndex: 0,
+        question: poll.title,
+        option: text,
+        allowMultiple: poll.allow_multiple
+      };
+    }
   }
 }

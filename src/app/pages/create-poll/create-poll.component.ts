@@ -177,7 +177,10 @@ export class CreatePollComponent {
   buildValidationHints(): string[] {
     const hints: string[] = [];
     if (!this.surveyTitle.trim()) hints.push('Survey name is required.');
-    if (this.getValidOptions(this.primaryQuestion).length < 2) hints.push('At least 2 answers are required.');
+    if (this.getPayloadQuestions().length === 0) hints.push('At least one question with 2 answers is required.');
+    if (this.questionDrafts.some((question) => this.getValidOptions(question).length < 2)) {
+      hints.push('Every question needs at least 2 answers.');
+    }
     if (this.surveyDeadline && new Date(this.surveyDeadline) <= new Date()) hints.push('Deadline must be in the future.');
     return hints;
   }
@@ -259,15 +262,6 @@ export class CreatePollComponent {
   }
 
   /**
-   * Returns the primary question currently used to build the poll payload.
-   *
-   * @returns First question draft in the editor.
-   */
-  private get primaryQuestion(): QuestionDraft {
-    return this.questionDrafts[0];
-  }
-
-  /**
    * Returns trimmed, non-empty options for a draft question.
    *
    * @param question Question draft whose options should be normalized.
@@ -275,6 +269,21 @@ export class CreatePollComponent {
    */
   private getValidOptions(question: QuestionDraft): string[] {
     return question.options.map((option) => option.trim()).filter((option) => option.length > 0);
+  }
+
+  /**
+   * Converts the visible question drafts into normalized payload questions.
+   *
+   * @returns Questions ready to be persisted with the poll.
+   */
+  private getPayloadQuestions(): CreatePollData['questions'] {
+    return this.questionDrafts
+      .map((question, index) => ({
+        text: question.text.trim() || (index === 0 ? this.surveyTitle.trim() : `Question ${index + 1}`),
+        allow_multiple: question.allowMultiple,
+        options: this.getValidOptions(question)
+      }))
+      .filter((question) => question.options.length >= 2);
   }
 
   /**
@@ -287,9 +296,8 @@ export class CreatePollComponent {
       title: this.surveyTitle.trim(),
       description: this.surveyDescription.trim(),
       deadline: this.surveyDeadline || null,
-      options: this.getValidOptions(this.primaryQuestion),
       category: this.surveyCategory,
-      allow_multiple: this.primaryQuestion.allowMultiple
+      questions: this.getPayloadQuestions()
     };
   }
 }

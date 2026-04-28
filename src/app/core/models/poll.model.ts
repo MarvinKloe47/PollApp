@@ -10,6 +10,16 @@ export interface PollOption {
 }
 
 /**
+ * Represents one question in a poll and its answer options.
+ */
+export interface PollQuestion {
+  id: string;
+  text: string;
+  allow_multiple: boolean;
+  options: PollOption[];
+}
+
+/**
  * Represents a poll together with its answer options.
  */
 export interface Poll {
@@ -21,6 +31,16 @@ export interface Poll {
   allow_multiple: boolean;
   createdAt?: string;
   options: PollOption[];
+  questions: PollQuestion[];
+}
+
+/**
+ * Payload question used while creating a poll.
+ */
+export interface CreatePollQuestionData {
+  text: string;
+  allow_multiple: boolean;
+  options: string[];
 }
 
 /**
@@ -42,6 +62,5 @@ export interface CreatePollData {
   description: string;
   deadline: string | null;
   category: string;
-  allow_multiple: boolean;
-  options: string[];
+  questions: CreatePollQuestionData[];
 }

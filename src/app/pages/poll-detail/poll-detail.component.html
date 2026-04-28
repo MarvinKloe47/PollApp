@@ -40,46 +40,48 @@
           <p class="pd-description">{{ poll.description }}</p>
         }
 
-        <div class="pd-question">
-          <header class="pd-question__header">
-            <h2 class="pd-question__title">
-              1. {{ poll.title }}
-            </h2>
+        @for (question of poll.questions; track question.id; let questionIndex = $index) {
+          <div class="pd-question">
+            <header class="pd-question__header">
+              <h2 class="pd-question__title">
+                {{ questionIndex + 1 }}. {{ question.text }}
+              </h2>
 
-            @if (poll.allow_multiple) {
-              <p class="pd-question__hint">
-                More than one answers are possible.
-              </p>
-            }
-          </header>
+              @if (question.allow_multiple) {
+                <p class="pd-question__hint">
+                  More than one answers are possible.
+                </p>
+              }
+            </header>
 
-          <ul class="pd-options" role="list">
-            @for (option of poll.options; track option.id; let i = $index) {
-              <li>
-                <button
-                  class="pd-option"
-                  type="button"
-                  [class.pd-option--selected]="isOptionSelected(option.id)"
-                  [class.pd-option--voted]="hasVoted"
-                  [disabled]="isOptionDisabled(option.id)"
-                  [attr.aria-pressed]="isOptionSelected(option.id)"
-                  [attr.aria-label]="'Vote for: ' + option.text"
-                  (click)="vote(option.id)"
-                >
-                  <span
-                    class="pd-option__checkbox"
-                    [class.pd-option__checkbox--checked]="isOptionSelected(option.id)"
-                    aria-hidden="true"
-                  ></span>
+            <ul class="pd-options" role="list">
+              @for (option of question.options; track option.id; let i = $index) {
+                <li>
+                  <button
+                    class="pd-option"
+                    type="button"
+                    [class.pd-option--selected]="isOptionSelected(option.id)"
+                    [class.pd-option--voted]="hasVotedInQuestion(question)"
+                    [disabled]="isOptionDisabled(option.id, question)"
+                    [attr.aria-pressed]="isOptionSelected(option.id)"
+                    [attr.aria-label]="'Vote for: ' + option.text"
+                    (click)="vote(option.id)"
+                  >
+                    <span
+                      class="pd-option__checkbox"
+                      [class.pd-option__checkbox--checked]="isOptionSelected(option.id)"
+                      aria-hidden="true"
+                    ></span>
 
-                  <span class="pd-option__text">
-                    <strong>{{ getOptionLetter(i) }}.</strong>&nbsp;{{ option.text }}
-                  </span>
-                </button>
-              </li>
-            }
-          </ul>
-        </div>
+                    <span class="pd-option__text">
+                      <strong>{{ getOptionLetter(i) }}.</strong>&nbsp;{{ option.text }}
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
 
         <footer class="pd-survey__footer">
           @if (hasVoted) {
@@ -116,13 +118,14 @@
         }
 
         @if (totalVotes > 0) {
-          <div class="pd-result-group">
+          @for (question of poll.questions; track question.id; let questionIndex = $index) {
+            <div class="pd-result-group">
             <h3 class="pd-result-group__title">
-              1. {{ poll.title }}
+              {{ questionIndex + 1 }}. {{ question.text }}
             </h3>
 
             <ul class="pd-bars" role="list">
-              @for (option of poll.options; track option.id; let i = $index) {
+              @for (option of question.options; track option.id; let i = $index) {
                 <li class="pd-bar-row">
                   <span class="pd-bar-row__letter">
                     {{ getOptionLetter(i) }}
@@ -131,24 +134,25 @@
                   <div
                     class="pd-bar-track"
                     role="progressbar"
-                    [attr.aria-valuenow]="getPercentage(option.vote_count)"
+                    [attr.aria-valuenow]="getPercentage(option.vote_count, question)"
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    [attr.aria-label]="option.text + ': ' + getPercentage(option.vote_count) + '%'"
+                    [attr.aria-label]="option.text + ': ' + getPercentage(option.vote_count, question) + '%'"
                   >
                     <div
                       class="pd-bar-fill"
-                      [style.width.%]="getPercentage(option.vote_count)"
+                      [style.width.%]="getPercentage(option.vote_count, question)"
                     ></div>
                   </div>
 
                   <span class="pd-bar-row__pct">
-                    {{ getPercentage(option.vote_count) | number:'1.0-0' }}%
+                    {{ getPercentage(option.vote_count, question) | number:'1.0-0' }}%
                   </span>
                 </li>
               }
             </ul>
           </div>
+          }
         }
       </aside>
     </div>
