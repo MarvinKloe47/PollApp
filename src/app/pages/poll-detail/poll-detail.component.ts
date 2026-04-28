@@ -246,7 +246,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
    * @returns `true` when voting should be considered closed.
    */
   isPollPast(): boolean {
-    if (!this.poll) {
+    if (!this.poll?.deadline) {
       return false;
     }
 

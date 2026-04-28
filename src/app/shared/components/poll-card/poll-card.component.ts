@@ -33,6 +33,6 @@ export class PollCardComponent {
    * @returns `true` when the poll is still active.
    */
   get isActive(): boolean {
-    return new Date(this.poll.deadline) > new Date();
+    return !this.poll.deadline || new Date(this.poll.deadline) > new Date();
   }
 }

@@ -16,7 +16,7 @@ export interface Poll {
   id: string;
   title: string;
   description: string;
-  deadline: string;
+  deadline: string | null;
   category: string;
   allow_multiple: boolean;
   createdAt?: string;
@@ -40,7 +40,7 @@ export interface Vote {
 export interface CreatePollData {
   title: string;
   description: string;
-  deadline: string;
+  deadline: string | null;
   category: string;
   allow_multiple: boolean;
   options: string[];

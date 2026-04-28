@@ -78,7 +78,7 @@ export class HomeComponent implements OnInit {
    * @returns Active polls sorted in their existing order.
    */
   getActivePolls(): Poll[] {
-    return this.polls.filter((poll) => new Date(poll.deadline) > new Date());
+    return this.polls.filter((poll) => !poll.deadline || new Date(poll.deadline) > new Date());
   }
 
   /**
@@ -87,7 +87,7 @@ export class HomeComponent implements OnInit {
    * @returns Archived polls sorted in their existing order.
    */
   getPastPolls(): Poll[] {
-    return this.polls.filter((poll) => new Date(poll.deadline) <= new Date());
+    return this.polls.filter((poll) => !!poll.deadline && new Date(poll.deadline) <= new Date());
   }
 
   /**
@@ -100,6 +100,10 @@ export class HomeComponent implements OnInit {
     const oneDay = 24 * 60 * 60 * 1000;
 
     return this.getActivePolls().filter((poll) => {
+      if (!poll.deadline) {
+        return false;
+      }
+
       const deadline = new Date(poll.deadline).getTime();
       return deadline - now <= oneDay;
     });
@@ -130,7 +134,11 @@ export class HomeComponent implements OnInit {
    * @param deadline Poll deadline as an ISO date string.
    * @returns Human-readable countdown text.
    */
-  getEndsInText(deadline: string): string {
+  getEndsInText(deadline: string | null): string {
+    if (!deadline) {
+      return 'No deadline';
+    }
+
     const diff = new Date(deadline).getTime() - Date.now();
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
 

@@ -286,7 +286,7 @@ export class CreatePollComponent {
     return {
       title: this.surveyTitle.trim(),
       description: this.surveyDescription.trim(),
-      deadline: this.surveyDeadline,
+      deadline: this.surveyDeadline || null,
       options: this.getValidOptions(this.primaryQuestion),
       category: this.surveyCategory,
       allow_multiple: this.primaryQuestion.allowMultiple
