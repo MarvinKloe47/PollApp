@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, WritableSignal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PollService } from '../../core/services/poll.service';
@@ -21,19 +21,13 @@ type PollTab = 'active' | 'past';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
-  /** Currently selected poll tab. */
-  readonly activeTab = signal<PollTab>('active');
-  /** Active category filter, or `null` when all categories are shown. */
-  readonly selectedCategory = signal<string | null>(null);
-  /** Controls the visibility of the category dropdown. */
-  readonly showCategoryMenu = signal(false);
-  /** Tracks hover state for the landing page illustration. */
-  readonly isIllustrationHovered = signal(false);
-  /** Tracks hover state for the main call-to-action button. */
-  readonly isCtaHovered = signal(false);
+  public readonly activeTab: WritableSignal<PollTab> = signal<PollTab>('active');
+  public readonly selectedCategory: WritableSignal<string | null> = signal<string | null>(null);
+  public readonly showCategoryMenu: WritableSignal<boolean> = signal(false);
+  public readonly isIllustrationHovered: WritableSignal<boolean> = signal(false);
+  public readonly isCtaHovered: WritableSignal<boolean> = signal(false);
 
-  /** Available poll categories shown in the home page filter. */
-  readonly categories = [
+  public readonly categories: string[] = [
     'Team Activities',
     'Health & Wellness',
     'Gaming & Entertainment',
@@ -42,12 +36,9 @@ export class HomeComponent implements OnInit {
     'Technology & Innovation'
   ];
 
-  /** Polls loaded from the backend. */
-  polls: Poll[] = [];
-  /** Indicates whether the initial list is currently loading. */
-  loading = true;
-  /** User-facing error message displayed when loading fails. */
-  error = '';
+  public polls: Poll[] = [];
+  public loading: boolean = true;
+  public error: string = '';
 
   /**
    * Creates the home page component.

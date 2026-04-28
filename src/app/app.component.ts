@@ -43,7 +43,7 @@ export class AppComponent {
    *
    * @param router Router used for navigation and route-aware UI state.
    */
-  constructor(public router: Router) {}
+  constructor(public readonly router: Router) {}
 
   /**
    * Determines whether the current route should use the light navigation style.

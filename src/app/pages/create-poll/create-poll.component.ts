@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, WritableSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CreatePollData } from '../../core/models/poll.model';
@@ -9,19 +9,14 @@ import { PollService } from '../../core/services/poll.service';
  * Represents the editable state of a question while building a poll.
  */
 interface QuestionDraft {
-  /** Current question prompt text. */
   text: string;
-  /** Candidate answer options for the question. */
   options: string[];
-  /** Indicates whether multiple answers should be allowed. */
   allowMultiple: boolean;
 }
 
-/** Default two-option scaffold used for new question drafts. */
-const BASE_OPTIONS = ['', ''];
+const BASE_OPTIONS: string[] = ['', ''];
 
-/** Categories available when creating a new poll. */
-const CATEGORY_OPTIONS = [
+const CATEGORY_OPTIONS: string[] = [
   'Team Activities',
   'Health & Wellness',
   'Gaming & Entertainment',
@@ -41,28 +36,17 @@ const CATEGORY_OPTIONS = [
   styleUrl: './create-poll.component.scss'
 })
 export class CreatePollComponent {
-  /** Title entered for the survey. */
-  surveyTitle = '';
-  /** Description entered for the survey. */
-  surveyDescription = '';
-  /** Deadline value selected in the form. */
-  surveyDeadline = '';
-  /** Category chosen for the survey. */
-  surveyCategory = '';
-  /** Controls the visibility of the category dropdown menu. */
-  categoryMenuOpen = false;
-  /** Available category labels rendered in the picker. */
-  readonly categoryOptions = CATEGORY_OPTIONS;
+  public surveyTitle: string = '';
+  public surveyDescription: string = '';
+  public surveyDeadline: string = '';
+  public surveyCategory: string = '';
+  public categoryMenuOpen: boolean = false;
+  public readonly categoryOptions: string[] = CATEGORY_OPTIONS;
 
-  /** Mutable list of drafted poll questions. */
-  questionDrafts: QuestionDraft[] = [this.createDraft()];
-  /** Indicates whether the form is currently being submitted. */
-  isSubmitting = signal(false);
-  /** Stores the latest submission error for display in the UI. */
-  errorMessage = signal<string | null>(null);
-  /** Controls the success overlay shown after a poll was created. */
-  showSuccess = signal(false);
-  /** Identifier of the most recently created poll. */
+  public questionDrafts: QuestionDraft[] = [this.createDraft()];
+  public isSubmitting: WritableSignal<boolean> = signal(false);
+  public errorMessage: WritableSignal<string | null> = signal<string | null>(null);
+  public showSuccess: WritableSignal<boolean> = signal(false);
   private createdPollId: string | null = null;
 
   /**

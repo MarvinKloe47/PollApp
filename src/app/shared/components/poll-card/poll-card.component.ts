@@ -13,8 +13,7 @@ import { Poll } from '../../../core/models/poll.model';
   styleUrl: './poll-card.component.scss'
 })
 export class PollCardComponent {
-  /** Poll rendered by the card. */
-  @Input() poll!: Poll;
+  @Input() public poll!: Poll;
 
   /**
    * Computes the total number of votes across all poll options.

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../../core/models/poll.model';
 
@@ -15,18 +16,12 @@ import { Poll } from '../../core/models/poll.model';
   styleUrl: './poll-detail.component.scss'
 })
 export class PollDetailComponent implements OnInit, OnDestroy {
-  /** Poll currently displayed in the detail view. */
-  poll: Poll | null = null;
-  /** Indicates whether the poll data is currently loading. */
-  loading = true;
-  /** User-facing error message shown when loading or voting fails. */
-  error = '';
-  /** Option identifiers already selected by the current visitor, if any. */
-  selectedOptionIds: string[] = [];
-  /** Indicates whether a vote request is currently in flight. */
-  voting = false;
-  /** Live update subscription for the current poll. */
-  private voteSubscription: any;
+  public poll: Poll | null = null;
+  public loading: boolean = true;
+  public error: string = '';
+  public selectedOptionIds: string[] = [];
+  public voting: boolean = false;
+  private voteSubscription: RealtimeChannel | null = null;
 
   /**
    * Creates the poll detail component.
@@ -35,8 +30,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
    * @param pollService Service used to load and update poll data.
    */
   constructor(
-    private route: ActivatedRoute,
-    private pollService: PollService
+    private readonly route: ActivatedRoute,
+    private readonly pollService: PollService
   ) {}
 
   /**
@@ -137,10 +132,20 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Indicates whether the loaded poll allows multiple selected answers.
+   *
+   * @returns `true` when multiple options can be voted for.
+   */
   get canVoteMultiple(): boolean {
     return !!this.poll?.allow_multiple;
   }
 
+  /**
+   * Indicates whether the current visitor has already voted.
+   *
+   * @returns `true` when at least one option is selected for this voter.
+   */
   get hasVoted(): boolean {
     return this.selectedOptionIds.length > 0;
   }

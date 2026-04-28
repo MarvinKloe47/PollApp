@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 import { CreatePollData, Poll } from '../models/poll.model';
 
@@ -9,15 +10,14 @@ import { CreatePollData, Poll } from '../models/poll.model';
   providedIn: 'root'
 })
 export class PollService {
-  /** Shared Supabase client used for poll queries and mutations. */
-  private supabase = this.supabaseService.getClient();
+  private readonly supabase: SupabaseClient = this.supabaseService.getClient();
 
   /**
    * Creates the service with access to the shared Supabase client factory.
    *
    * @param supabaseService Service that exposes the configured Supabase client.
    */
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   /**
    * Loads all polls together with their options ordered by creation date.
@@ -189,7 +189,7 @@ export class PollService {
    * @param callback Function invoked whenever a relevant update is received.
    * @returns The Supabase channel subscription.
    */
-  subscribeToPollUpdates(pollId: string, callback: () => void) {
+  subscribeToPollUpdates(pollId: string, callback: () => void): RealtimeChannel {
     return this.supabase
       .channel(`poll-${pollId}-updates`)
       .on(

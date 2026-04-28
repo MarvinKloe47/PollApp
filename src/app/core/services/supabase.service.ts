@@ -9,8 +9,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class SupabaseService {
-  /** Lazily reused Supabase client instance for API access. */
-  private client: SupabaseClient;
+  private readonly client: SupabaseClient;
 
   /**
    * Initializes the Supabase client with the project's public configuration.
